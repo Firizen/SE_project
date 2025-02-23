@@ -18,7 +18,15 @@ router.post("/student-login", async (req, res) => {
   if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
   const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, { expiresIn: "1h" });
-  res.json({ token });
+
+  res.json({
+    token,
+    student: {
+      name: student.name || "No Name",  // Ensure a valid name
+      email: student.email || "No Email",
+      class: student.class || "No Class"
+    },
+  });
 });
 
 // 📌 Teacher Login
@@ -32,7 +40,14 @@ router.post("/teacher-login", async (req, res) => {
   if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
   const token = jwt.sign({ id: teacher._id, role: "teacher" }, JWT_SECRET, { expiresIn: "1h" });
-  res.json({ token });
+
+  res.json({
+    token,
+    teacher: {
+      name: teacher.name,
+      email: teacher.email
+    }
+  });
 });
 
 module.exports = router;

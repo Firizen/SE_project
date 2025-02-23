@@ -18,6 +18,15 @@ function TeacherLogin() {
     if (response.ok) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", "teacher");
+
+      // Store teacher details if available
+      if (data.teacher) {
+        localStorage.setItem(
+          "teacherDetails",
+          JSON.stringify({ name: data.teacher.name, email: data.teacher.email })
+        );
+      }
+
       navigate("/teacher/dashboard");
     } else {
       alert(data.message);

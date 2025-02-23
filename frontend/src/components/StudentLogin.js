@@ -8,26 +8,43 @@ function StudentLogin() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/api/auth/student-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", "student");
-      navigate("/student/dashboard");
-    } else {
-      alert(data.message);
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/student-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        if (!data.student) {
+          alert("Login successful, but student data is missing.");
+          return;
+        }
+  
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", "student");
+        localStorage.setItem("studentName", data.student.name || "Unknown");
+        localStorage.setItem("studentEmail", data.student.email || "Not available");
+        localStorage.setItem("studentClass", data.student.class || "Not assigned");
+  
+        navigate("/student/dashboard");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred. Please try again.");
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-blue-200">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-center text-gray-700 font-serif" >Student Login</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-700 font-serif">Student Login</h1>
         <form onSubmit={handleLogin} className="mt-6">
           <div className="mb-4">
             <input
