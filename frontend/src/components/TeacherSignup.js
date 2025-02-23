@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+
 
 function TeacherSignup() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -30,6 +31,7 @@ function TeacherSignup() {
         <input type="password" name="password" placeholder="Password" required onChange={handleChange} />
         <button type="submit">Sign Up</button>
       </form>
+      <Link to="/"><button>Back</button></Link>
     </div>
   );
 }
