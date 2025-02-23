@@ -20,7 +20,11 @@ function TeacherDashboard() {
       <header className="w-full bg-blue-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
         <h1 className="text-2xl font-bold font-serif">Teacher Dashboard</h1>
         <div className="flex items-center space-x-4">
-          <div className="relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
+          <div 
+            className="relative" 
+            onMouseEnter={() => setShowDropdown(true)} 
+            onMouseLeave={() => setShowDropdown(false)}
+          >
             <button className="bg-white text-black px-4 py-2 font-bold rounded-md hover:bg-gray-300 transition">
               View Details
             </button>
@@ -31,7 +35,10 @@ function TeacherDashboard() {
               </div>
             )}
           </div>
-          <button onClick={handleLogout} className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-300 transition">
+          <button 
+            onClick={handleLogout} 
+            className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-300 transition"
+          >
             Logout
           </button>
         </div>
@@ -41,10 +48,16 @@ function TeacherDashboard() {
       <div className="flex flex-grow h-screen">
         {/* Sidebar */}
         <div className="w-80 bg-gray-800 text-white flex flex-col p-4 space-y-4 h-full">
-          <button onClick={() => setActiveSection("create")} className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition">
+          <button 
+            onClick={() => setActiveSection(activeSection === "create" ? null : "create")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
             Create Assignment
           </button>
-          <button onClick={() => setActiveSection("view")} className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition">
+          <button 
+            onClick={() => setActiveSection(activeSection === "view" ? null : "view")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
             View Active Assignments
           </button>
         </div>
