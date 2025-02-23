@@ -24,9 +24,34 @@ router.post("/student-login", async (req, res) => {
     student: {
       name: student.name || "No Name",  // Ensure a valid name
       email: student.email || "No Email",
-      class: student.class || "No Class"
+      studentClass: student.studentClass || "No Class"
     },
   });
+});
+
+router.post("/student-signup", async (req, res) => {
+  const { name, email, password, studentClass } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const student = new Student({ name, email, password: hashedPassword, studentClass });
+    await student.save();
+    res.status(201).json({ message: "Student registered" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+router.post("/teacher-signup", async (req, res) => {
+  const { name, email, password} = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const teacher = new Teacher({ name, email, password: hashedPassword});
+    await teacher.save();
+    res.status(201).json({ message: "Teacher registered" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // 📌 Teacher Login

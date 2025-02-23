@@ -13,7 +13,7 @@ function StudentSignup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/student/signup", formData);
+      await axios.post("http://localhost:5000/api/auth/student-signup", formData);
       alert("Student Registered Successfully! Please login.");
       navigate("/student/login");
     } catch (error) {

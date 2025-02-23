@@ -13,7 +13,7 @@ function TeacherSignup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/teacher/signup", formData);
+      await axios.post("http://localhost:5000/api/auth/teacher-signup", formData);
       alert("Teacher Registered Successfully! Please login.");
       navigate("/teacher/login");
     } catch (error) {

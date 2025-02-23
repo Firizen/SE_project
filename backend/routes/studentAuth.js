@@ -17,6 +17,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const student = await Student.findOne({ email });

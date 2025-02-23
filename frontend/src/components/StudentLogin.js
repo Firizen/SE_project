@@ -28,7 +28,7 @@ function StudentLogin() {
         localStorage.setItem("role", "student");
         localStorage.setItem("studentName", data.student.name || "Unknown");
         localStorage.setItem("studentEmail", data.student.email || "Not available");
-        localStorage.setItem("studentClass", data.student.class || "Not assigned");
+        localStorage.setItem("studentClass", data.student.studentClass || "Not assigned");
   
         navigate("/student/dashboard");
       } else {
