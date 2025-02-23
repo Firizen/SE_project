@@ -1,11 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import StudentLogin from "./components/StudentLogin";
-import TeacherLogin from "./components/TeacherLogin";
-import StudentDashboard from "./components/StudentDashboard";
-import TeacherDashboard from "./components/TeacherDashboard";
-import StudentSignup from "./components/StudentSignup";
-import TeacherSignup from "./components/TeacherSignup";
-import HomePage from "./components/Home";  // Add this if needed
+import HomePage from "./components/Home";
+
+import StudentSignup from "./pages/student/StudentSignup";
+import StudentLogin from "./pages/student/StudentLogin";
+import StudentDashboard from "./pages/student/StudentDashboard";
+
+import TeacherSignup from "./pages/teacher/TeacherSignup";
+import TeacherLogin from "./pages/teacher/TeacherLogin";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+
+  
 
 function App() {
   return (
