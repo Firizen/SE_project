@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 function TeacherLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -11,7 +12,7 @@ function TeacherLogin() {
     const response = await fetch("http://localhost:5000/api/auth/teacher-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password,}),
     });
 
     const data = await response.json();
@@ -23,7 +24,7 @@ function TeacherLogin() {
       if (data.teacher) {
         localStorage.setItem(
           "teacherDetails",
-          JSON.stringify({ name: data.teacher.name, email: data.teacher.email })
+          JSON.stringify({ name: data.teacher.name, email: data.teacher.email})
         );
       }
 

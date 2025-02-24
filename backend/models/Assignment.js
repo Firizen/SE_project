@@ -4,8 +4,9 @@ const assignmentSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   className: { type: String, required: true }, // Class assigned to
-  teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher", required: true },
-  createdAt: { type: Date, default: Date.now }
+  teacherName: { type: String, required: true }, // Name of the teacher
+  createdAt: { type: Date, default: Date.now },
+  dueDate: { type: Date, required: true } // Due date and time
 });
 
 module.exports = mongoose.model("Assignment", assignmentSchema);

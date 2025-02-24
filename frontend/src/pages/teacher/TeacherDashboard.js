@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateAssignment from "./dashboardComponents/CreateAssignment";
 import ViewAssignments from "./dashboardComponents/ViewAssignments";
 
 function TeacherDashboard() {
   const [activeSection, setActiveSection] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
-
   const teacher = JSON.parse(localStorage.getItem("teacherDetails")) || { name: "Unknown", email: "Not Available" };
 
   const handleLogout = () => {
