@@ -25,7 +25,7 @@ const ViewAssignments = () => {
   }, [teacherName]);
 
   return (
-    <div className="mt-8 w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-6/12 h-5/6">
       <h2 className="text-xl font-semibold mb-4">My Assignments</h2>
       {assignments.length === 0 ? (
         <p className="text-gray-500">No assignments available.</p>

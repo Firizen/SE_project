@@ -42,7 +42,7 @@ function CreateAssignment() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-6/12 h-5/6">
       <h2 className="text-xl font-semibold mb-4 text-center">Create Assignment</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleCreateAssignment} className="space-y-4">
@@ -68,6 +68,8 @@ function CreateAssignment() {
           required
           className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
         />
+        
+        Enter Due Date:
         <input
           type="datetime-local"
           value={dueDate}
@@ -75,12 +77,14 @@ function CreateAssignment() {
           required
           className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
         />
+        <center>
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
+          className="w-5/12 bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
         >
           Create
         </button>
+        </center>
       </form>
     </div>
   );

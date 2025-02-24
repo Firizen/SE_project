@@ -7,11 +7,13 @@ function StudentDashboard() {
 
   const studentName = localStorage.getItem("studentName") || "Unknown";
   const studentEmail = localStorage.getItem("studentEmail") || "Not available";
+  const studentClass = localStorage.getItem("studentClass") || "Not available";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("studentName");
     localStorage.removeItem("studentEmail");
+    localStorage.removeItem("studentClass");
     window.location.href = "/student/login";
   };
 
@@ -29,6 +31,7 @@ function StudentDashboard() {
               <div className="absolute right-0 mt-2 w-56 bg-white text-black p-4 shadow-lg rounded-md">
                 <p className="font-semibold">Name: {studentName}</p>
                 <p className="text-gray-600">Email: {studentEmail}</p>
+                <p className="text-gray-600">Class: {studentClass}</p>
               </div>
             )}
           </div>
