@@ -42,3 +42,23 @@ router.get("/", async (req, res) => {
 
 
 module.exports = router;
+
+
+// Students view
+router.get("/student/:className", async (req, res) => {
+  try {
+    const { className } = req.params;
+    console.log("Fetching assignments for class:", className); // Debugging
+
+    const assignments = await Assignment.find({ className: className });
+
+    if (!assignments.length) {
+      return res.status(404).json({ message: "No assignments found" });
+    }
+
+    res.json(assignments);
+  } catch (error) {
+    console.error("Error fetching assignments:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});

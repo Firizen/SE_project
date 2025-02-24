@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 function ViewStudentAssignments({ studentClass }) {
   const [assignments, setAssignments] = useState([]);
+  const [selectedAssignment, setSelectedAssignment] = useState(null); // Stores selected assignment details
 
   useEffect(() => {
     if (studentClass) {
@@ -13,20 +14,57 @@ function ViewStudentAssignments({ studentClass }) {
   }, [studentClass]);
 
   return (
-    <div className="p-8 w-full">
-      <h2 className="text-xl font-semibold mb-4">Active Assignments</h2>
-      {assignments.length === 0 ? (
-        <p className="text-gray-500">No assignments available.</p>
-      ) : (
-        <ul className="space-y-3">
-          {assignments.map((assignment) => (
-            <li key={assignment._id} className="p-4 border rounded-md shadow-sm bg-white">
-              <h3 className="text-lg font-medium">{assignment.title}</h3>
-              <p className="text-gray-600">{assignment.description}</p>
-              <p className="text-sm text-gray-500">Due: {new Date(assignment.dueDate).toLocaleDateString()}</p>
-            </li>
-          ))}
-        </ul>
+    <div className="p-8 flex space-x-8">
+      {/* Active Assignments List */}
+      <div className="w-6/12">
+        <h2 className="text-xl font-semibold mb-4">Active Assignments</h2>
+        {assignments.length === 0 ? (
+          <p className="text-gray-500">No assignments available.</p>
+        ) : (
+          <ul className="space-y-3">
+            {assignments.map((assignment) => (
+              <li
+                key={assignment._id}
+                className="p-4 border rounded-md shadow-sm bg-white flex justify-between items-center"
+              >
+                <p className="text-gray-600 text-lg font-medium">
+                 <strong>Title: </strong> {assignment.title}
+                </p>
+                <button
+                  className="bg-blue-500 w-3/12 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
+                  onClick={() =>
+                    setSelectedAssignment(
+                      selectedAssignment?._id === assignment._id ? null : assignment
+                    )
+                  }
+                >
+                  {selectedAssignment?._id === assignment._id ? "Hide Details" : "More Details"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Assignment Details Display */}
+      {selectedAssignment && (
+        <div className="w-5/12 p-4 border rounded-md shadow-sm bg-white">
+          <h3 className="text-xl font-semibold mb-4">
+            Title: {selectedAssignment.title}
+          </h3>
+          <p className="text-gray-600">
+            <strong>Created by:</strong> {selectedAssignment.teacherName || "Unknown"}
+          </p>
+          <p className="text-gray-600">
+            <strong>Description:</strong> {selectedAssignment.description}
+          </p>
+          <p className="text-gray-600">
+            <strong>Due Date:</strong>{" "}
+            {new Date(selectedAssignment.dueDate).toLocaleString()}
+          </p>
+          <button className="bg-blue-500 w-3/12 mt-10 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600">
+            Submit  </button>
+        </div>
       )}
     </div>
   );
