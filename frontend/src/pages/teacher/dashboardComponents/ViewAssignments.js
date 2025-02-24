@@ -33,7 +33,7 @@ const ViewAssignments = () => {
         <ul className="space-y-3">
           {assignments.map((assignment) => (
             <li key={assignment._id} className="p-4 border rounded-md shadow-sm bg-gray-50">
-              <h3 className="text-lg font-medium">{assignment.title}</h3>
+              <h3 className="text-lg font-bold text-black-600">Title: {assignment.title}</h3>
               <p className="text-gray-600"><strong>Description:</strong> {assignment.description || "No description provided"}</p>
               <p className="text-gray-600"><strong>Class:</strong> {assignment.className}</p>
               <p className="text-gray-600"><strong>Due Date:</strong> {new Date(assignment.dueDate).toLocaleString()}</p>

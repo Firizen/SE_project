@@ -22,7 +22,7 @@ function TeacherSignup() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-blue-200">
+    <div className="flex items-center justify-center min-h-screen bg-blue-300">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-gray-700 font-serif">Teacher Signup</h2>
         <form onSubmit={handleSubmit} className="mt-6">

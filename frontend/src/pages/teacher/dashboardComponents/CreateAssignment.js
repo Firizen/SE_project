@@ -10,12 +10,12 @@ function CreateAssignment() {
 
   const handleCreateAssignment = async (e) => {
     e.preventDefault();
-    
+
     if (!title || !className || !dueDate) {
       setError("Title, Class Name, and Due Date are required.");
       return;
     }
-    
+
     const newAssignment = { title, description, className, teacherName, dueDate };
 
     try {
@@ -42,50 +42,59 @@ function CreateAssignment() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg w-6/12 h-5/6">
-      <h2 className="text-xl font-semibold mb-4 text-center">Create Assignment</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleCreateAssignment} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Class Name"
-          value={className}
-          onChange={(e) => setClassName(e.target.value)}
-          required
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-        />
-        
-        Enter Due Date:
-        <input
-          type="datetime-local"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          required
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-        />
-        <center>
-        <button
-          type="submit"
-          className="w-5/12 bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
-        >
-          Create
-        </button>
-        </center>
-      </form>
+    <div className="flex items-center justify-center w-full bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-7/12 h-5/6 ">
+        <h2 className="text-xl font-semibold mb-4 text-center">Create Assignment</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        <form onSubmit={handleCreateAssignment} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* Dropdown for Class Selection */}
+          <select
+            value={className}
+            onChange={(e) => setClassName(e.target.value)}
+            required
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            <option value="" disabled>Select Class</option>
+            <option value="Class A">Class A</option>
+            <option value="Class B">Class B</option>
+            <option value="Class C">Class C</option>
+            <option value="Class D">Class D</option>
+          </select>
+
+          <div className="mt-4 text-base font-semibold">Enter Due Date:</div>
+          <input
+            type="datetime-local"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            required
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+
+          <div className="flex justify-center mt-4">
+            <button
+              type="submit"
+              className="w-5/12 mt-14 bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
+            >
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

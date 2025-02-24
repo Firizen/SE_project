@@ -1,6 +1,7 @@
-import { useState} from "react";
+import { useState } from "react";
 import CreateAssignment from "./dashboardComponents/CreateAssignment";
 import ViewAssignments from "./dashboardComponents/ViewAssignments";
+import ViewPastAssignments from "./dashboardComponents/PastAssignments";
 
 function TeacherDashboard() {
   const [activeSection, setActiveSection] = useState(null);
@@ -16,7 +17,7 @@ function TeacherDashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <header className="w-full bg-blue-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
+      <header className="w-full bg-blue-600 text-white py-4 px-6 flex justify-between items-center shadow-md ">
         <h1 className="text-2xl font-bold font-serif">Teacher Dashboard</h1>
         <div className="flex items-center space-x-4">
           <div 
@@ -24,7 +25,7 @@ function TeacherDashboard() {
             onMouseEnter={() => setShowDropdown(true)} 
             onMouseLeave={() => setShowDropdown(false)}
           >
-            <button className="bg-white text-black px-4 py-2 font-bold rounded-md hover:bg-gray-300 transition">
+            <button className="bg-white text-black px-4 py-2 font-semibold rounded-md hover:bg-gray-300 transition">
               View Details
             </button>
             {showDropdown && (
@@ -36,17 +37,16 @@ function TeacherDashboard() {
           </div>
           <button 
             onClick={handleLogout} 
-            className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-300 transition"
-          >
+            className="bg-white text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition">
             Logout
           </button>
         </div>
       </header>
 
       {/* Dashboard Layout */}
-      <div className="flex flex-grow h-screen">
+      <div className="flex flex-grow">
         {/* Sidebar */}
-        <div className="w-80 bg-gray-800 text-white flex flex-col p-4 space-y-4 h-full">
+        <div className="w-80 bg-gray-800 text-white flex flex-col p-4 space-y-4">
           <button 
             onClick={() => setActiveSection(activeSection === "create" ? null : "create")} 
             className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
@@ -59,12 +59,22 @@ function TeacherDashboard() {
           >
             View Active Assignments
           </button>
+          <button 
+            onClick={() => setActiveSection(activeSection === "viewPast" ? null : "viewPast")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
+            View Past Assignments
+          </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 mt-4"> {/* Added mt-4 to create space below the header */}
           {activeSection === "create" && <CreateAssignment />}
-          {activeSection === "view" && <ViewAssignments />}
+          {activeSection === "view" && (
+              <ViewAssignments />
+
+          )}
+          {activeSection === "viewPast" && <ViewPastAssignments />}
         </div>
       </div>
     </div>

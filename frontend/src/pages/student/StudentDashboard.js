@@ -32,7 +32,7 @@ function StudentDashboard() {
             onMouseEnter={() => setShowDropdown(true)} 
             onMouseLeave={() => setShowDropdown(false)}
           >
-            <button className="bg-white text-black px-4 py-2 font-bold rounded-md hover:bg-gray-300 transition">
+            <button className="bg-white text-black px-4 py-2 font-semibold rounded-md hover:bg-gray-300 transition">
               View Details
             </button>
             {showDropdown && (
@@ -46,7 +46,7 @@ function StudentDashboard() {
           {/* Logout Button */}
           <button 
             onClick={handleLogout} 
-            className="bg-white text-black font-bold px-4 py-2 rounded-md hover:bg-gray-300 transition"
+            className="bg-white text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition"
           >
             Logout
           </button>
