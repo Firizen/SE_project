@@ -16,7 +16,7 @@ function ViewStudentAssignments({ studentClass }) {
   return (
     <div className="p-8 flex space-x-8">
       {/* Active Assignments List */}
-      <div className="w-6/12">
+      <div className="w-5/12">
         <h2 className="text-xl font-semibold mb-4">Active Assignments</h2>
         {assignments.length === 0 ? (
           <p className="text-gray-500">No assignments available.</p>
@@ -31,15 +31,14 @@ function ViewStudentAssignments({ studentClass }) {
                  <strong>Title: </strong> {assignment.title}
                 </p>
                 <button
-                  className="bg-blue-500 w-3/12 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
-                  onClick={() =>
-                    setSelectedAssignment(
-                      selectedAssignment?._id === assignment._id ? null : assignment
-                    )
-                  }
-                >
-                  {selectedAssignment?._id === assignment._id ? "Hide Details" : "More Details"}
-                </button>
+                className={`w-3/12 px-4 py-2 rounded-md shadow text-white ${
+                          selectedAssignment === assignment._id
+                          ? "bg-red-500 hover:bg-red-600"  // Red when active
+                          : "bg-blue-500 hover:bg-blue-600" // Blue when inactive
+                          }`}
+                            onClick={() =>
+                            setSelectedAssignment(selectedAssignment === assignment._id ? null : assignment._id) } >
+                            {selectedAssignment === assignment._id ? "Hide Details" : "More Details"}  </button>
               </li>
             ))}
           </ul>
@@ -48,7 +47,7 @@ function ViewStudentAssignments({ studentClass }) {
 
       {/* Assignment Details Display */}
       {selectedAssignment && (
-        <div className="w-5/12 p-4 border rounded-md shadow-sm bg-white">
+        <div className="w-6/12 p-4 border rounded-md shadow-sm bg-white">
           <h3 className="text-xl font-semibold mb-4">
             Title: {selectedAssignment.title}
           </h3>
