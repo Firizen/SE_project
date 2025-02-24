@@ -19,13 +19,14 @@ function StudentLogin() {
       const data = await response.json();
   
       if (response.ok) {
-        if (!data.student) {
-          alert("Login successful, but student data is missing.");
+        if (!data.student || !data.student._id) {
+          alert("Login successful, but student ID is missing.");
           return;
         }
   
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", "student");
+        localStorage.setItem("studentID", data.student._id);  // ✅ Store student ID
         localStorage.setItem("studentName", data.student.name || "Unknown");
         localStorage.setItem("studentEmail", data.student.email || "Not available");
         localStorage.setItem("studentClass", data.student.studentClass || "Not assigned");
@@ -39,6 +40,8 @@ function StudentLogin() {
       alert("An error occurred. Please try again.");
     }
   };
+  
+  
   
 
   return (

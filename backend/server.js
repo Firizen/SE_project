@@ -15,13 +15,14 @@ connectDB();
 // Import Routes
 const assignmentRoutes = require("./routes/assignment");
 const authRoutes = require("./routes/auth");
-const submissionRoutes = require("./routes/submissionRoutes"); // ✅ Import Submission Routes
 const studentRoutes = require("./routes/students");
+const submissionRoutes = require("./routes/submissions");
 // Use Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/submissions", submissionRoutes); // ✅ Add Submission Routes
 app.use("/api/students", studentRoutes);
+
 
 
 app.listen(5000, () => console.log("🚀 Server running on port 5000"));

@@ -8,6 +8,7 @@ const router = express.Router();
 const JWT_SECRET = "your_secret_key"; // Change this to a secure key
 
 // 📌 Student Login
+// 📌 Student Login
 router.post("/student-login", async (req, res) => {
   const { email, password } = req.body;
   const student = await Student.findOne({ email });
@@ -19,15 +20,18 @@ router.post("/student-login", async (req, res) => {
 
   const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, { expiresIn: "1h" });
 
+  // ✅ Ensure student._id is included in the response
   res.json({
     token,
     student: {
-      name: student.name || "No Name",  // Ensure a valid name
+      _id: student._id,  // ✅ Add this
+      name: student.name || "No Name",
       email: student.email || "No Email",
-      studentClass: student.studentClass || "No Class"
+      studentClass: student.studentClass || "No Class",
     },
   });
 });
+
 
 
 
