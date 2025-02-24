@@ -48,7 +48,6 @@ module.exports = router;
 router.get("/student/:className", async (req, res) => {
   try {
     const { className } = req.params;
-    console.log("Fetching assignments for class:", className); // Debugging
 
     const assignments = await Assignment.find({ className: className });
 
