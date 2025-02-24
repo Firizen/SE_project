@@ -28,17 +28,24 @@ function ViewStudentAssignments({ studentClass }) {
                 className="p-4 border rounded-md shadow-sm bg-white flex justify-between items-center"
               >
                 <p className="text-gray-600 text-lg font-medium">
-                 <strong>Title: </strong> {assignment.title}
+                  <strong>Title: </strong> {assignment.title}
                 </p>
                 <button
-                className={`w-3/12 px-4 py-2 rounded-md shadow text-white ${
-                          selectedAssignment === assignment._id
-                          ? "bg-red-500 hover:bg-red-600"  // Red when active
-                          : "bg-blue-500 hover:bg-blue-600" // Blue when inactive
-                          }`}
-                            onClick={() =>
-                            setSelectedAssignment(selectedAssignment === assignment._id ? null : assignment._id) } >
-                            {selectedAssignment === assignment._id ? "Hide Details" : "More Details"}  </button>
+                  className={`w-3/12 px-4 py-2 rounded-md shadow text-white ${
+                    selectedAssignment?._id === assignment._id
+                      ? "bg-red-500 hover:bg-red-600" // Red when active
+                      : "bg-blue-500 hover:bg-blue-600" // Blue when inactive
+                  }`}
+                  onClick={() =>
+                    setSelectedAssignment(
+                      selectedAssignment?._id === assignment._id ? null : assignment
+                    )
+                  }
+                >
+                  {selectedAssignment?._id === assignment._id
+                    ? "Hide Details"
+                    : "More Details"}
+                </button>
               </li>
             ))}
           </ul>
@@ -61,8 +68,12 @@ function ViewStudentAssignments({ studentClass }) {
             <strong>Due Date:</strong>{" "}
             {new Date(selectedAssignment.dueDate).toLocaleString()}
           </p>
+          <p className="text-gray-600">
+            <strong>Id:</strong>  {selectedAssignment?._id}
+          </p>
           <button className="bg-blue-500 w-3/12 mt-10 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600">
-            Submit  </button>
+            Submit
+          </button>
         </div>
       )}
     </div>
