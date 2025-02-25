@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function ViewStudentAssignments({ studentClass }) {
+  function ViewStudentAssignments({ studentClass }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [error, setError] = useState(null);
@@ -17,8 +17,7 @@ function ViewStudentAssignments({ studentClass }) {
 
   // Function to submit assignment
   const handleSubmit = async () => {
-    const studentID = localStorage.getItem("studentID"); // ✅ Get Student ID
-  
+  const studentID = localStorage.getItem("studentID");
     if (!studentID) {
       alert("Student not logged in!");
       return;
