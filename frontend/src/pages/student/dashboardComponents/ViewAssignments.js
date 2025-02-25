@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-  function ViewStudentAssignments({ studentClass }) {
+function ViewStudentAssignments({ studentClass }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [error, setError] = useState(null);
@@ -17,40 +17,39 @@ import { useState, useEffect } from "react";
 
   // Function to submit assignment
   const handleSubmit = async () => {
-  const studentID = localStorage.getItem("studentID");
+    const studentID = localStorage.getItem("studentID");
     if (!studentID) {
       alert("Student not logged in!");
       return;
     }
-  
+
     const submissionData = {
       studentID: studentID, // Use the stored student ID
       assignmentID: selectedAssignment._id,
     };
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to submit assignment");
       }
-  
+
       alert("Assignment submitted successfully!");
     } catch (err) {
       console.error("Error submitting assignment:", err);
       alert("Submission failed!");
     }
   };
-  
 
   return (
     <div className="p-8 flex space-x-8">
-      {/* Active Assignments List */}
-      <div className="w-5/12">
+      {/* Active Assignments Section */}
+      <div className="w-5/12 bg-gray-50 p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-semibold mb-4">Active Assignments</h2>
         {error && <p className="text-red-500">{error}</p>}
         {assignments.length === 0 ? (
@@ -66,7 +65,7 @@ import { useState, useEffect } from "react";
                   <strong>Title: </strong> {assignment.title}
                 </p>
                 <button
-                  className={`w-3/12 px-4 py-2 rounded-md shadow text-white ${
+                  className={`w-4/12 px-4 py-2 rounded-md shadow text-white ${
                     selectedAssignment?._id === assignment._id
                       ? "bg-red-500 hover:bg-red-600"
                       : "bg-blue-500 hover:bg-blue-600"
@@ -86,7 +85,6 @@ import { useState, useEffect } from "react";
           </ul>
         )}
       </div>
-
       {/* Assignment Details Display */}
       {selectedAssignment && (
         <div className="w-6/12 p-4 border rounded-md shadow-sm bg-white">
@@ -105,12 +103,16 @@ import { useState, useEffect } from "react";
           <p className="text-gray-600">
             <strong>Id:</strong> {selectedAssignment?._id}
           </p>
-          <button
-            onClick={() => handleSubmit(selectedAssignment._id)}
-            className="bg-blue-500 w-3/12 mt-10 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
-          >
-            Submit
-          </button>
+
+          {/* ✅ Show "Submit" button ONLY when an assignment is selected */}
+          {selectedAssignment && (
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-500 w-3/12 mt-10 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
+            >
+              Submit
+            </button>
+          )}
         </div>
       )}
     </div>
