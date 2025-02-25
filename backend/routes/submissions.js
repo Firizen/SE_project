@@ -5,7 +5,29 @@ const Student = require("../models/Student");
 const Assignment = require("../models/Assignment");
 
 // ✅ Submit an assignment
-router.post("/", async (req, res) => {
+router.get("/checkStudentSubmission", async (req, res) => {
+  try {
+    const { studentID, assignmentID } = req.query;
+
+    if (!studentID || !assignmentID) {
+      return res.status(400).json({ error: "Student ID and Assignment ID are required." });
+    }
+
+    // Check if submission already exists
+    const existingSubmission = await Submission.findOne({ studentID, assignmentID });
+
+    if (existingSubmission) {
+      return res.status(200).json({ submitted: true, submission: existingSubmission });
+    } else {
+      return res.status(200).json({ submitted: false });
+    }
+  } catch (err) {
+    console.error("Error checking submission:", err);
+    res.status(500).json({ error: "Failed to check submission" });
+  }
+});
+
+router.post("/submit", async (req, res) => {
   try {
     const { studentID, assignmentID } = req.body;
 
@@ -13,25 +35,14 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Student ID and Assignment ID are required." });
     }
 
-    // Check if the student exists
-    const studentExists = await Student.findById(studentID);
-    if (!studentExists) {
-      return res.status(404).json({ error: "Student not found." });
-    }
-
-    // Check if the assignment exists
-    const assignmentExists = await Assignment.findById(assignmentID);
-    if (!assignmentExists) {
-      return res.status(404).json({ error: "Assignment not found." });
-    }
-
-    // Check if the student has already submitted this assignment
+    // Check if submission already exists
     const existingSubmission = await Submission.findOne({ studentID, assignmentID });
+
     if (existingSubmission) {
       return res.status(400).json({ error: "Assignment already submitted." });
     }
 
-    // Create the submission
+    // Create and save submission
     const newSubmission = new Submission({ studentID, assignmentID, submittedAt: new Date() });
     await newSubmission.save();
 
@@ -41,6 +52,8 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Failed to submit assignment" });
   }
 });
+
+
 
 // ✅ Get submissions for a specific assignment
 router.get("/", async (req, res) => {
