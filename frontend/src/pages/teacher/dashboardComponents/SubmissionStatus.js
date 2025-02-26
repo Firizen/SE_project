@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 const SubmissionStatus = ({ assignment, onBack, socket }) => {
   const [submittedStudents, setSubmittedStudents] = useState([]);
   const [notSubmittedStudents, setNotSubmittedStudents] = useState([]);
+  const [totalStudents, setTotalStudents] = useState(0);
 
   useEffect(() => {
     if (!assignment) return;
@@ -23,6 +24,7 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
 
         const submittedStudentIds = new Set(submissionsData.map((s) => s.studentID));
 
+        setTotalStudents(studentsData.length);
         setSubmittedStudents(studentsData.filter((s) => submittedStudentIds.has(s._id)));
         setNotSubmittedStudents(studentsData.filter((s) => !submittedStudentIds.has(s._id)));
       } catch (error) {
@@ -32,7 +34,6 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
 
     fetchSubmissionStatus();
 
-    // Listen for real-time submission updates
     const handleSubmissionUpdate = (newSubmission) => {
       if (newSubmission.fullDocument.assignmentID === assignment._id) {
         fetchSubmissionStatus();
@@ -54,13 +55,24 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
     };
   }, [assignment, socket]);
 
+  const progress = totalStudents > 0 ? (submittedStudents.length / totalStudents) * 100 : 0;
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg w-8/12">
       <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg" onClick={onBack}>
         ← Back
       </button>
       <h2 className="text-xl font-semibold mb-4">Submission Status: {assignment.title}</h2>
-
+      
+      {/* Submission Progress */}
+      <div className="mb-4">
+        <p className="text-lg font-semibold mb-1">Progress: {submittedStudents.length}/{totalStudents}</p>
+        <div className="w-full bg-gray-200 rounded-full h-4">
+          <div className="bg-green-500 h-4 rounded-full" style={{ width: `${progress}%` }}></div>
+        </div>
+      </div>
+      
+      {/* Submitted Students */}
       <div>
         <h3 className="text-lg font-semibold text-green-600">Submitted Students</h3>
         {submittedStudents.length > 0 ? (
@@ -74,6 +86,7 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
         )}
       </div>
 
+      {/* Not Submitted Students */}
       <div className="mt-4">
         <h3 className="text-lg font-semibold text-red-600">Not Submitted Students</h3>
         {notSubmittedStudents.length > 0 ? (
