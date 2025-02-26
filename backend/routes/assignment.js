@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Assignment = require("../models/Assignment");
+const Notification = require("../models/Notification");
+const Student = require("../models/Student");
 
-// Create an assignment
+// Create an assignment and generate notifications
 router.post("/", async (req, res) => {
   try {
     const { title, description, className, teacherName, dueDate } = req.body;
@@ -13,8 +15,22 @@ router.post("/", async (req, res) => {
     }
 
     const newAssignment = new Assignment({ title, description, className, teacherName, dueDate });
-
     await newAssignment.save();
+
+    // Fetch students in the class
+    const students = await Student.find({ studentClass: className }, "_id");
+
+    if (students.length > 0) {
+      // Create notifications for each student
+      const notifications = students.map((student) => ({
+        studentID: student._id,
+        assignmentID: newAssignment._id,
+        message: `New Assignment: ${title}`,
+      }));
+
+      await Notification.insertMany(notifications);
+    }
+
     res.status(201).json(newAssignment);
   } catch (err) {
     console.error("Error creating assignment:", err);
@@ -40,16 +56,12 @@ router.get("/", async (req, res) => {
   }
 });
 
-
-module.exports = router;
-
-
-// Students view
+// Students view assignments based on their class
 router.get("/student/:className", async (req, res) => {
   try {
     const { className } = req.params;
 
-    const assignments = await Assignment.find({ className: className });
+    const assignments = await Assignment.find({ className });
 
     if (!assignments.length) {
       return res.status(404).json({ message: "No assignments found" });
@@ -61,3 +73,5 @@ router.get("/student/:className", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+module.exports = router;
