@@ -5,6 +5,8 @@ function AssignmentDetails({ assignment, resetSelection }) {
   const [submitted, setSubmitted] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
+  const [uploadedFileURL, setUploadedFileURL] = useState(null);
+  const [uploadedFileType, setUploadedFileType] = useState(null);
 
   useEffect(() => {
     const studentID = localStorage.getItem("studentID");
@@ -15,9 +17,32 @@ function AssignmentDetails({ assignment, resetSelection }) {
 
     fetch(`http://localhost:5000/api/submissions/checkStudentSubmission?studentID=${studentID}&assignmentID=${assignment._id}`)
       .then((res) => res.json())
-      .then((data) => setSubmitted(data.submitted))
+      .then((data) => {
+        setSubmitted(data.submitted);
+        if (data.submitted) {
+          fetchSubmittedDocument(studentID, assignment._id);
+        }
+      })
       .catch((err) => console.error("Error checking submission:", err));
   }, [assignment._id]);
+
+  // Fetch the submitted document as a blob and detect its type
+  const fetchSubmittedDocument = (studentID, assignmentID) => {
+    fetch(`http://localhost:5000/api/submissions/getSubmittedDocument?studentID=${studentID}&assignmentID=${assignmentID}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("No uploaded document found");
+        }
+        const contentType = res.headers.get("Content-Type"); // Get the MIME type
+        setUploadedFileType(contentType); // Store the file type
+        return res.blob();
+      })
+      .then((blob) => {
+        const fileURL = URL.createObjectURL(blob);
+        setUploadedFileURL(fileURL);
+      })
+      .catch((err) => console.error("Error fetching submitted document:", err));
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -58,6 +83,7 @@ function AssignmentDetails({ assignment, resetSelection }) {
 
       alert("Assignment submitted successfully!");
       setSubmitted(true);
+      fetchSubmittedDocument(studentID, assignment._id);
     } catch (err) {
       console.error("Error submitting assignment:", err);
       alert("Submission failed!");
@@ -82,7 +108,6 @@ function AssignmentDetails({ assignment, resetSelection }) {
         <p className="text-gray-600">
           <strong>Due Date:</strong> {new Date(assignment.dueDate).toLocaleString()}
         </p>
-        
 
         {/* File Upload Section - Hide if submitted */}
         {!submitted && (
@@ -109,17 +134,34 @@ function AssignmentDetails({ assignment, resetSelection }) {
 
       {/* Right Section - File Preview */}
       <div className="w-1/3 ml-8 border-l pl-4">
-        {filePreview && (
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold mb-2">File Preview:</h4>
-            {selectedFile.type.includes("image") ? (
-              <img src={filePreview} alt="Preview" className="max-w-full h-auto" />
-            ) : selectedFile.type === "application/pdf" ? (
-              <iframe src={filePreview} className="w-full h-64 border" title="PDF Preview"></iframe>
-            ) : (
-              <p className="text-gray-600">Preview not available for this file type.</p>
-            )}
-          </div>
+        {submitted ? (
+          uploadedFileURL ? (
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-2">Uploaded Document:</h4>
+              {uploadedFileType === "application/pdf" ? (
+                <iframe src={uploadedFileURL} className="w-full h-64 border" title="PDF Preview"></iframe>
+              ) : uploadedFileType?.startsWith("image/") ? (
+                <img src={uploadedFileURL} alt="Submitted File" className="max-w-full h-auto" />
+              ) : (
+                <p className="text-gray-600">Preview not available for this file type.</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-600 mt-4">No uploaded document found.</p>
+          )
+        ) : (
+          filePreview && (
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-2">File Preview:</h4>
+              {selectedFile.type.startsWith("image/") ? (
+                <img src={filePreview} alt="Preview" className="max-w-full h-auto" />
+              ) : selectedFile.type === "application/pdf" ? (
+                <iframe src={filePreview} className="w-full h-64 border" title="PDF Preview"></iframe>
+              ) : (
+                <p className="text-gray-600">Preview not available for this file type.</p>
+              )}
+            </div>
+          )
         )}
       </div>
     </div>

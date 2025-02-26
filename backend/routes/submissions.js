@@ -60,6 +60,27 @@ router.post("/submit", upload.single("document"), async (req, res) => {
   }
 });
 
+router.get("/getSubmittedDocument", async (req, res) => {
+  try {
+    const { studentID, assignmentID } = req.query;
+    if (!studentID || !assignmentID) {
+      return res.status(400).json({ error: "Student ID and Assignment ID are required." });
+    }
+
+    const submission = await Submission.findOne({ studentID, assignmentID });
+    if (!submission) {
+      return res.status(404).json({ error: "No submission found." });
+    }
+
+    res.setHeader("Content-Type", submission.contentType);
+    res.send(submission.document);
+  } catch (err) {
+    console.error("Error fetching submitted document:", err);
+    res.status(500).json({ error: "Failed to fetch submitted document" });
+  }
+});
+
+
 
 // ✅ Get submissions for a specific assignment
 router.get("/", async (req, res) => {

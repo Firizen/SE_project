@@ -70,10 +70,10 @@ function CreateAssignment() {
             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="" disabled>Select Class</option>
-            <option value="Class A">Class A</option>
-            <option value="Class B">Class B</option>
-            <option value="Class C">Class C</option>
-            <option value="Class D">Class D</option>
+            <option value="A">Class A</option>
+            <option value="B">Class B</option>
+            <option value="C">Class C</option>
+            <option value="D">Class D</option>
           </select>
 
           <div className="mt-4 text-base font-semibold">Enter Due Date:</div>
