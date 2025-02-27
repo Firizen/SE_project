@@ -81,6 +81,7 @@ function AssignmentDetails({ assignment, resetSelection }) {
       alert("Assignment submitted successfully!");
       setSubmitted(true);
       fetchSubmittedDocument(studentID, assignment._id);
+      setFilePreview(null); // Clear preview after submission
     } catch (err) {
       console.error("Error submitting assignment:", err);
       alert("Submission failed!");
@@ -127,7 +128,18 @@ function AssignmentDetails({ assignment, resetSelection }) {
       </div>
 
       <div className="w-2/3 border-l p-4 h-full flex justify-center items-center">
-        {uploadedFileURL ? (
+        {filePreview ? (
+          <div className="w-full h-full">
+            <h4 className="text-lg font-semibold mb-2">Selected Document Preview:</h4>
+            {selectedFile.type === "application/pdf" ? (
+              <iframe src={filePreview} className="w-full h-full border" title="PDF Preview"></iframe>
+            ) : selectedFile.type.startsWith("image/") ? (
+              <img src={filePreview} alt="Selected File" className="w-full h-auto" />
+            ) : (
+              <p className="text-gray-600">Preview not available for this file type.</p>
+            )}
+          </div>
+        ) : uploadedFileURL ? (
           <div className="w-full h-full">
             <h4 className="text-lg font-semibold mb-2">Uploaded Document:</h4>
             {uploadedFileType === "application/pdf" ? (

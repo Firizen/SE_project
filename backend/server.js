@@ -28,12 +28,15 @@ const assignmentRoutes = require("./routes/assignment");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/students");
 const submissionRoutes = require("./routes/submissions");
+const notificationRoutes = require("./routes/notifications");
 
 // Use Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/notifications", notificationRoutes);
+
 
 // WebSocket connection
 io.on("connection", (socket) => {
@@ -47,16 +50,30 @@ io.on("connection", (socket) => {
 // MongoDB Change Stream for real-time submission updates
 const db = mongoose.connection;
 db.once("open", () => {
-  console.log("📡 Listening for submission changes...");
+  console.log("📡 Listening for database changes...");
+
+  // Submission Change Stream
   const submissionCollection = db.collection("submissions");
+  const submissionStream = submissionCollection.watch();
 
-  const changeStream = submissionCollection.watch();
-
-  changeStream.on("change", (change) => {
+  submissionStream.on("change", (change) => {
     console.log("📢 Submission updated:", change);
     io.emit("submissionUpdate", change);
   });
+
+  // Notification Change Stream
+  const notificationCollection = db.collection("notifications");
+  const notificationStream = notificationCollection.watch();
+
+  notificationStream.on("change", (change) => {
+    if (change.operationType === "insert") {
+      const newNotification = change.fullDocument;
+      console.log("🔔 New Notification:", newNotification);
+      io.emit("newNotification", newNotification);
+    }
+  });
 });
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
