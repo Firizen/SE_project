@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import AssignmentDetails from "./AssignmentDetails"; // Import new component
+import AssignmentDetails from "./AssignmentDetails"; // Importing the assignment details component
 
 function ViewStudentAssignments({ studentClass }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
 
+  // Fetch assignments when studentClass is available
   useEffect(() => {
     if (studentClass) {
       fetch(`http://localhost:5000/api/assignments/student/${studentClass}`)
@@ -33,22 +34,35 @@ function ViewStudentAssignments({ studentClass }) {
         <p className="text-gray-500">No assignments available.</p>
       ) : (
         <ul className="space-y-3">
-          {assignments.map((assignment) => (
-            <li
-              key={assignment._id}
-              className="p-4 border rounded-md shadow-sm bg-white flex justify-between items-center"
-            >
-              <p className="text-gray-600 text-lg font-medium">
-                <strong>Title: </strong> {assignment.title}
-              </p>
-              <button
-                className="px-4 py-2 rounded-md shadow text-white bg-blue-500 hover:bg-blue-600"
-                onClick={() => setSelectedAssignment(assignment)}
+          {assignments.map((assignment) => {
+            const isOverdue = new Date(assignment.dueDate) < new Date();
+
+            return (
+              <li
+                key={assignment._id}
+                className={`p-4 border rounded-md shadow-sm flex justify-between items-center 
+                  ${isOverdue ? "bg-red-100 border-red-500" : "bg-white"}`}
               >
-                More Details
-              </button>
-            </li>
-          ))}
+                <div>
+                  <p className="text-gray-600 text-lg font-medium">
+                    <strong>Title: </strong> {assignment.title}
+                  </p>
+                  {isOverdue && (
+                    <p className="text-red-600 font-semibold">Overdue</p>
+                  )}
+                  <p className="text-gray-500">
+                    <strong>Due: </strong> {new Date(assignment.dueDate).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  className="px-4 py-2 rounded-md shadow text-white bg-blue-500 hover:bg-blue-600"
+                  onClick={() => setSelectedAssignment(assignment)}
+                >
+                  More Details
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

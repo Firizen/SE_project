@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FaArrowLeft } from "react-icons/fa";
 
 const SubmissionStatus = ({ assignment, onBack, socket }) => {
   const [submittedStudents, setSubmittedStudents] = useState([]);
