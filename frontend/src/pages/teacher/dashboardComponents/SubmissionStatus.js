@@ -67,14 +67,20 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
 
   if (viewingSubmission) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-lg w-8/12">
-        <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg" onClick={() => setViewingSubmission(null)}>
-          ← Back
-        </button>
-        <h2 className="text-xl font-semibold mb-4">View Submission</h2>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-8/12 h-[78vh] flex flex-col">
+      <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg w-2/12" onClick={() => setViewingSubmission(null)}>
+        ← Back
+      </button>
+      <h2 className="text-xl font-semibold mb-4">View Submission</h2>
+      
+      <div className="flex-1">
         {uploadedFileURL ? (
           uploadedFileType === "application/pdf" ? (
-            <iframe src={uploadedFileURL} className="w-full h-96 border" title="PDF Preview"></iframe>
+            <iframe 
+              src={uploadedFileURL} 
+              className="w-full h-full border" 
+              title="PDF Preview"
+            ></iframe>
           ) : uploadedFileType?.startsWith("image/") ? (
             <img src={uploadedFileURL} alt="Submitted File" className="max-w-full h-auto" />
           ) : (
@@ -84,6 +90,8 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
           <p className="text-gray-600">No document available.</p>
         )}
       </div>
+    </div>
+    
     );
   }
 
