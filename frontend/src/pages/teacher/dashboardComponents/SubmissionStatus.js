@@ -64,43 +64,63 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
     }
   };
 
+  const closeAssignment = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/assignments/close/${assignment._id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) throw new Error("Failed to close assignment");
+  
+      alert("Assignment closed successfully");
+  
+      // Refresh assignments list (assuming this is inside a component with state)
+      window.location.reload();
+    } catch (error) {
+      console.error("Error closing assignment:", error);
+      alert("Failed to close the assignment");
+    }
+  };
+  
   if (viewingSubmission) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-lg w-8/12 h-[78vh] flex flex-col">
-      <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg w-2/12" onClick={() => setViewingSubmission(null)}>
-        ← Back
-      </button>
-      <h2 className="text-xl font-semibold mb-4">View Submission</h2>
-      
-      <div className="flex-1">
-        {uploadedFileURL ? (
-          uploadedFileType === "application/pdf" ? (
-            <iframe 
-              src={uploadedFileURL} 
-              className="w-full h-full border" 
-              title="PDF Preview"
-            ></iframe>
-          ) : uploadedFileType?.startsWith("image/") ? (
-            <img src={uploadedFileURL} alt="Submitted File" className="max-w-full h-auto" />
+        <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg w-2/12" onClick={() => setViewingSubmission(null)}>
+          ← Back
+        </button>
+        <h2 className="text-xl font-semibold mb-4">View Submission</h2>
+
+        <div className="flex-1">
+          {uploadedFileURL ? (
+            uploadedFileType === "application/pdf" ? (
+              <iframe src={uploadedFileURL} className="w-full h-full border" title="PDF Preview"></iframe>
+            ) : uploadedFileType?.startsWith("image/") ? (
+              <img src={uploadedFileURL} alt="Submitted File" className="max-w-full h-auto" />
+            ) : (
+              <p className="text-gray-600">Preview not available for this file type.</p>
+            )
           ) : (
-            <p className="text-gray-600">Preview not available for this file type.</p>
-          )
-        ) : (
-          <p className="text-gray-600">No document available.</p>
-        )}
+            <p className="text-gray-600">No document available.</p>
+          )}
+        </div>
       </div>
-    </div>
-    
     );
   }
 
   const progress = totalStudents > 0 ? (submittedStudents.length / totalStudents) * 100 : 0;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg w-8/12">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-8/12 relative">
       <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg" onClick={onBack}>
         ← Back
       </button>
+
+      {/* Close Assignment Button (Top Right) */}
+      <button className="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-red-500 text-white rounded-lg" onClick={closeAssignment}>
+        Close Submission
+      </button> 
+
       <h2 className="text-xl font-semibold mb-4">Submission Status: {assignment.title}</h2>
 
       <div className="mb-4">
@@ -108,7 +128,7 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
         <div className="w-full bg-gray-200 rounded-full h-4">
           <div className="bg-green-500 h-4 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
-      </div>
+     </div>
 
       <div>
         <h3 className="text-lg font-semibold text-green-600">Submitted Students</h3>

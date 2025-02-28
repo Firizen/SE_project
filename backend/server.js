@@ -29,6 +29,16 @@ const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/students");
 const submissionRoutes = require("./routes/submissions");
 const notificationRoutes = require("./routes/notifications");
+const PastAssignment = require("./models/PastAssignment"); // Import the model
+
+app.get("/api/pastassignments", async (req, res) => {
+  try {
+    const pastAssignments = await PastAssignment.find(); // Fetch from database
+    res.json(pastAssignments);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch past assignments" });
+  }
+});
 
 // Use Routes
 app.use("/api/auth", authRoutes);

@@ -6,20 +6,14 @@ function ViewPastAssignments() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAssignments = async () => {
+    const fetchPastAssignments = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/assignments");
+        const response = await fetch("http://localhost:5000/api/pastassignments"); // Updated endpoint
         if (!response.ok) {
-          throw new Error("Failed to fetch assignments");
+          throw new Error("Failed to fetch past assignments");
         }
         const data = await response.json();
-
-        // Filter past assignments (where due date is in the past)
-        const pastAssignments = data.filter((assignment) => 
-          new Date(assignment.dueDate) < new Date()
-        );
-
-        setAssignments(pastAssignments);
+        setAssignments(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -27,7 +21,7 @@ function ViewPastAssignments() {
       }
     };
 
-    fetchAssignments();
+    fetchPastAssignments();
   }, []);
 
   return (

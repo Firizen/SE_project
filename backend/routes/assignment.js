@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Assignment = require("../models/Assignment");
+const PastAssignment = require("../models/PastAssignment"); // Import new model
 const Notification = require("../models/Notification");
 const Student = require("../models/Student");
 
@@ -56,8 +57,7 @@ router.get("/:assignmentID", async (req, res) => {
   }
 });
 
-
-// Get assignments for a specific teacher
+// Get active assignments for a specific teacher
 router.get("/", async (req, res) => {
   try {
     const { teacherName } = req.query;
@@ -90,6 +90,53 @@ router.get("/student/:className", async (req, res) => {
   } catch (error) {
     console.error("Error fetching assignments:", error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Close an assignment: Move to PastAssignments and delete from Assignments
+router.delete("/close/:assignmentID", async (req, res) => {
+  try {
+    const { assignmentID } = req.params;
+
+    // Find the assignment to be closed
+    const assignment = await Assignment.findById(assignmentID);
+    if (!assignment) {
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+
+    // Create a past assignment record
+    const pastAssignment = new PastAssignment({
+      title: assignment.title,
+      description: assignment.description,
+      className: assignment.className,
+      teacherName: assignment.teacherName,
+      createdAt: assignment.createdAt,
+      dueDate: assignment.dueDate,
+      closedAt: new Date(),
+    });
+
+    // Save the past assignment
+    await pastAssignment.save();
+
+    // Remove the assignment from the active list
+    await Assignment.findByIdAndDelete(assignmentID);
+
+    res.json({ message: "Assignment closed and moved to past assignments" });
+  } catch (error) {
+    console.error("Error closing assignment:", error);
+    res.status(500).json({ error: "Failed to close assignment" });
+  }
+});
+
+// Get past assignments for a teacher
+router.get("/past/:teacherName", async (req, res) => {
+  try {
+    const { teacherName } = req.params;
+    const pastAssignments = await PastAssignment.find({ teacherName });
+    res.json(pastAssignments);
+  } catch (error) {
+    console.error("Error fetching past assignments:", error);
+    res.status(500).json({ error: "Failed to fetch past assignments" });
   }
 });
 
