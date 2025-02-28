@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FaArrowLeft } from "react-icons/fa";
 
 const SubmissionStatus = ({ assignment, onBack, socket }) => {
   const [submittedStudents, setSubmittedStudents] = useState([]);
@@ -75,7 +76,6 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
   
       alert("Assignment closed successfully");
   
-      // Refresh assignments list (assuming this is inside a component with state)
       window.location.reload();
     } catch (error) {
       console.error("Error closing assignment:", error);
@@ -86,8 +86,8 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
   if (viewingSubmission) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-lg w-8/12 h-[78vh] flex flex-col">
-        <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg w-2/12" onClick={() => setViewingSubmission(null)}>
-          ← Back
+        <button className="mb-4 text-gray-600 text-2xl" onClick={() => setViewingSubmission(null)}>
+          <FaArrowLeft />
         </button>
         <h2 className="text-xl font-semibold mb-4">View Submission</h2>
 
@@ -112,12 +112,11 @@ const SubmissionStatus = ({ assignment, onBack, socket }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg w-8/12 relative">
-      <button className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg" onClick={onBack}>
-        ← Back
+      <button className="mb-4 text-gray-600 text-2xl" onClick={onBack}>
+        <FaArrowLeft />
       </button>
 
-      {/* Close Assignment Button (Top Right) */}
-      <button className="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-red-500 text-white rounded-lg" onClick={closeAssignment}>
+      <button className="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-red-600 text-white rounded-lg" onClick={closeAssignment}>
         Close Submission
       </button> 
 

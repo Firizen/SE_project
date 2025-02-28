@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*", // Adjust as per your frontend's URL
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST", "DELETE"] // Allow DELETE requests
   }
 });
 
@@ -31,12 +31,32 @@ const submissionRoutes = require("./routes/submissions");
 const notificationRoutes = require("./routes/notifications");
 const PastAssignment = require("./models/PastAssignment"); // Import the model
 
+// 🟢 Get all past assignments
 app.get("/api/pastassignments", async (req, res) => {
   try {
     const pastAssignments = await PastAssignment.find(); // Fetch from database
     res.json(pastAssignments);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch past assignments" });
+  }
+});
+
+// 🔴 DELETE route to remove a past assignment
+app.delete("/api/pastassignments/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAssignment = await PastAssignment.findByIdAndDelete(id);
+
+    if (!deletedAssignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    // Emit real-time update to clients
+    io.emit("assignmentDeleted", { id });
+
+    res.status(200).json({ message: "Assignment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting assignment", error: error.message });
   }
 });
 
@@ -62,19 +82,14 @@ db.once("open", () => {
   console.log("📡 Listening for database changes...");
 
   // 🔹 Assignment Change Stream for Real-Time Updates
- // MongoDB Change Stream for real-time assignment updates
-const assignmentCollection = db.collection("assignments");
-const assignmentStream = assignmentCollection.watch();
+  const assignmentCollection = db.collection("assignments");
+  const assignmentStream = assignmentCollection.watch();
 
-assignmentStream.on("change", async (change) => {
-  console.log("📢 Assignment updated:", change);
-
-  // Fetch updated assignments
-  const updatedAssignments = await assignmentCollection.find().toArray();
-
-  // Emit updates to all connected clients
-  io.emit("assignmentsUpdated", { assignments: updatedAssignments });
-});
+  assignmentStream.on("change", async (change) => {
+    console.log("📢 Assignment updated:", change);
+    const updatedAssignments = await assignmentCollection.find().toArray();
+    io.emit("assignmentsUpdated", { assignments: updatedAssignments });
+  });
 
   // 🔹 Submission Change Stream
   const submissionCollection = db.collection("submissions");

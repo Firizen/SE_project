@@ -27,13 +27,18 @@ function ViewStudentAssignments({ studentClass }) {
 
     fetchAssignments();
 
-    // Listen for real-time assignment updates
-    socket.on("assignmentsUpdated", (updatedAssignments) => {
-      setAssignments(updatedAssignments.assignments);
-    });
+    // Listen for real-time assignment updates and filter based on studentClass
+    const handleAssignmentsUpdate = (updatedAssignments) => {
+      const filteredAssignments = updatedAssignments.assignments.filter(
+        (assignment) => assignment.className === studentClass
+      );
+      setAssignments(filteredAssignments);
+    };
+
+    socket.on("assignmentsUpdated", handleAssignmentsUpdate);
 
     return () => {
-      socket.off("assignmentsUpdated"); // Clean up listener on unmount
+      socket.off("assignmentsUpdated", handleAssignmentsUpdate); // Clean up listener on unmount
     };
   }, [studentClass]);
 
