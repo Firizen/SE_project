@@ -47,7 +47,6 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-
 // WebSocket connection
 io.on("connection", (socket) => {
   console.log("🔗 New client connected:", socket.id);
@@ -57,12 +56,27 @@ io.on("connection", (socket) => {
   });
 });
 
-// MongoDB Change Stream for real-time submission updates
+// MongoDB Change Stream for real-time updates
 const db = mongoose.connection;
 db.once("open", () => {
   console.log("📡 Listening for database changes...");
 
-  // Submission Change Stream
+  // 🔹 Assignment Change Stream for Real-Time Updates
+ // MongoDB Change Stream for real-time assignment updates
+const assignmentCollection = db.collection("assignments");
+const assignmentStream = assignmentCollection.watch();
+
+assignmentStream.on("change", async (change) => {
+  console.log("📢 Assignment updated:", change);
+
+  // Fetch updated assignments
+  const updatedAssignments = await assignmentCollection.find().toArray();
+
+  // Emit updates to all connected clients
+  io.emit("assignmentsUpdated", { assignments: updatedAssignments });
+});
+
+  // 🔹 Submission Change Stream
   const submissionCollection = db.collection("submissions");
   const submissionStream = submissionCollection.watch();
 
@@ -71,7 +85,7 @@ db.once("open", () => {
     io.emit("submissionUpdate", change);
   });
 
-  // Notification Change Stream
+  // 🔹 Notification Change Stream
   const notificationCollection = db.collection("notifications");
   const notificationStream = notificationCollection.watch();
 
@@ -83,7 +97,6 @@ db.once("open", () => {
     }
   });
 });
-
 
 // Start server
 const PORT = process.env.PORT || 5000;

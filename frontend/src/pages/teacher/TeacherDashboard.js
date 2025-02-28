@@ -48,7 +48,7 @@ function TeacherDashboard() {
       {/* Dashboard Layout */}
       <div className="flex flex-grow">
         {/* Sidebar */}
-        <div className="w-80 bg-gray-800 text-white flex flex-col p-4 space-y-4">
+        <div className="w-64 bg-gray-800 text-white flex flex-col p-4 space-y-4">
           <button 
             onClick={() => setActiveSection(activeSection === "create" ? null : "create")} 
             className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"

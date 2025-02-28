@@ -38,8 +38,13 @@ function ViewPastAssignments() {
       <div className="space-y-4">
         {assignments.map((assignment) => (
           <div key={assignment._id} className="border rounded-lg p-4 shadow-md bg-gray-100">
-            <h3 className="text-lg font-semibold text-gray-700">{assignment.title}</h3>
-            <p className="text-gray-600">{assignment.description || "No description provided"}</p>
+            <h3 className="text-lg font-semibold text-gray-700">Title: {assignment.title}</h3>
+            
+            {/* Only show description if it's different from the title */}
+            {assignment.description && assignment.description !== assignment.title && (
+              <p className="text-sm text-gray-600">Description: {assignment.description}</p>
+            )}
+
             <p className="text-sm text-gray-500">Class: {assignment.className}</p>
             <p className="text-sm text-gray-500">Assigned by: {assignment.teacherName}</p>
             <p className="text-sm text-gray-500">

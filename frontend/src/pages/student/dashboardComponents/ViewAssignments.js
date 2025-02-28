@@ -1,22 +1,42 @@
 import { useState, useEffect } from "react";
-import AssignmentDetails from "./AssignmentDetails"; // Importing the assignment details component
+import { io } from "socket.io-client"; // Import socket.io client
+import AssignmentDetails from "./AssignmentDetails";
+
+const socket = io("http://localhost:5000"); // Connect to backend Socket.IO server
 
 function ViewStudentAssignments({ studentClass }) {
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
-  const [error] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Fetch assignments when studentClass is available
   useEffect(() => {
-    if (studentClass) {
-      fetch(`http://localhost:5000/api/assignments/student/${studentClass}`)
-        .then((res) => res.json())
-        .then((data) => setAssignments(data))
-        .catch((err) => console.error("Error fetching assignments:", err));
-    }
+    if (!studentClass) return;
+
+    // Fetch initial assignments from server
+    const fetchAssignments = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/assignments/student/${studentClass}`);
+        if (!response.ok) throw new Error("Failed to fetch assignments");
+        
+        const data = await response.json();
+        setAssignments(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchAssignments();
+
+    // Listen for real-time assignment updates
+    socket.on("assignmentsUpdated", (updatedAssignments) => {
+      setAssignments(updatedAssignments.assignments);
+    });
+
+    return () => {
+      socket.off("assignmentsUpdated"); // Clean up listener on unmount
+    };
   }, [studentClass]);
 
-  // Show AssignmentDetails if an assignment is selected
   if (selectedAssignment) {
     return (
       <AssignmentDetails
