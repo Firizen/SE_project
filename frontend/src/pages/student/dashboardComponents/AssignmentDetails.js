@@ -43,11 +43,24 @@ function AssignmentDetails({ assignment, resetSelection }) {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedFormats = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx MIME type
+    ];
+
+    if (!allowedFormats.includes(file.type)) {
+      alert("Invalid file format! Please upload a .pdf or .docx file.");
+      return;
+    }
+
     setSelectedFile(file);
 
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setFilePreview(fileURL);
+    if (file.type === "application/pdf") {
+      setFilePreview(URL.createObjectURL(file));
+    } else {
+      setFilePreview(null); // No preview for .docx files
     }
   };
 
@@ -71,7 +84,7 @@ function AssignmentDetails({ assignment, resetSelection }) {
     try {
       const response = await fetch("http://localhost:5000/api/submissions/submit", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -133,8 +146,6 @@ function AssignmentDetails({ assignment, resetSelection }) {
             <h4 className="text-lg font-semibold mb-2">Selected Document Preview:</h4>
             {selectedFile.type === "application/pdf" ? (
               <iframe src={filePreview} className="w-full h-full border" title="PDF Preview"></iframe>
-            ) : selectedFile.type.startsWith("image/") ? (
-              <img src={filePreview} alt="Selected File" className="w-full h-auto" />
             ) : (
               <p className="text-gray-600">Preview not available for this file type.</p>
             )}
@@ -144,10 +155,16 @@ function AssignmentDetails({ assignment, resetSelection }) {
             <h4 className="text-lg font-semibold mb-2">Uploaded Document:</h4>
             {uploadedFileType === "application/pdf" ? (
               <iframe src={uploadedFileURL} className="w-full h-full border" title="PDF Preview"></iframe>
-            ) : uploadedFileType?.startsWith("image/") ? (
-              <img src={uploadedFileURL} alt="Submitted File" className="w-full h-auto" />
             ) : (
-              <p className="text-gray-600">Preview not available for this file type.</p>
+              <a
+                href={uploadedFileURL}
+                download={`assignment_submission.${
+                  uploadedFileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ? "docx" : "file"
+                }`}
+                className="text-blue-500 underline"
+              >
+                Download Submitted Document
+              </a>
             )}
           </div>
         ) : (
