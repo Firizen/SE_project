@@ -156,9 +156,7 @@ function AssignmentDetails({ assignment, resetSelection }) {
             )}
           </div>
         ) : uploadedFileURL ? (
-<<<<<<< HEAD
-          <iframe src={uploadedFileURL} className="w-full h-full border" title="Submitted Document"></iframe>
-=======
+
           <div className="w-full h-full">
             <h4 className="text-lg font-semibold mb-2">Uploaded Document:</h4>
             {uploadedFileType === "application/pdf" ? (
@@ -175,7 +173,6 @@ function AssignmentDetails({ assignment, resetSelection }) {
               </a>
             )}
           </div>
->>>>>>> 4306d32bc4802595768fbee531f92d0db0a4ae9e
         ) : (
           <p className="text-gray-600">No uploaded document found.</p>
         )}
