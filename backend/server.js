@@ -28,6 +28,8 @@ const studentRoutes = require("./routes/students");
 const submissionRoutes = require("./routes/submissions"); // ✅ Ensure this route is correctly registered
 const notificationRoutes = require("./routes/notifications");
 const PastAssignment = require("./models/PastAssignment");
+const appealRoutes = require("./routes/appealRoutes"); // Import appeal routes
+
 
 // ✅ API Route for past assignments
 app.get("/api/pastassignments", async (req, res) => {
@@ -63,6 +65,8 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/api/submissions", submissionRoutes); // ✅ Ensure this is correctly registered
 app.use("/api/students", studentRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/appeals", appealRoutes); // Register appeal routes
+
 
 // WebSocket Connection
 io.on("connection", (socket) => {
