@@ -24,9 +24,12 @@ router.get("/checkStudentSubmission", async (req, res) => {
   }
 });
 
-// ✅ Submit an assignment with document upload
+// ✅ Submit or Resubmit an Assignment (Fixed)
 router.post("/submit", upload.single("document"), async (req, res) => {
   try {
+    console.log("Received data:", req.body);
+    console.log("Received file:", req.file);
+
     const { studentID, assignmentID } = req.body;
     if (!studentID || !assignmentID || !req.file) {
       return res.status(400).json({ error: "All fields and document are required." });
@@ -39,50 +42,122 @@ router.post("/submit", upload.single("document"), async (req, res) => {
     const assignmentExists = await Assignment.findById(assignmentID);
     if (!assignmentExists) return res.status(404).json({ error: "Assignment not found." });
 
-    // Ensure assignment is not already submitted
-    const existingSubmission = await Submission.findOne({ studentID, assignmentID });
-    if (existingSubmission) return res.status(400).json({ error: "Assignment already submitted." });
+    // Check for existing submission
+    let existingSubmission = await Submission.findOne({ studentID, assignmentID });
 
-    // Store document as binary data
-    const newSubmission = new Submission({
-      studentID,
-      assignmentID,
-      document: req.file.buffer,
-      contentType: req.file.mimetype,
-      submittedAt: new Date()
-    });
+    if (existingSubmission) {
+      // Store previous submission before overwriting
+      console.log("Resubmitting assignment...");
+      existingSubmission.attempts.push({
+        document: existingSubmission.document,
+        contentType: existingSubmission.contentType,
+        timestamp: existingSubmission.submittedAt,
+      });
 
-    await newSubmission.save();
-    res.status(201).json({ message: "Assignment submitted successfully!" });
+      existingSubmission.document = req.file.buffer;
+      existingSubmission.contentType = req.file.mimetype;
+      existingSubmission.submittedAt = new Date();
+      existingSubmission.status = "resubmitted";
+
+      await existingSubmission.save();
+      return res.status(200).json({ message: "Assignment resubmitted successfully!" });
+    } else {
+      // Create new submission
+      console.log("Submitting new assignment...");
+      const newSubmission = new Submission({
+        studentID,
+        assignmentID,
+        document: req.file.buffer,
+        contentType: req.file.mimetype,
+        submittedAt: new Date(),
+      });
+
+      await newSubmission.save();
+      return res.status(201).json({ message: "Assignment submitted successfully!" });
+    }
   } catch (err) {
-    console.error("Error submitting assignment:", err);
+    console.error("Error submitting/resubmitting assignment:", err);
     res.status(500).json({ error: "Failed to submit assignment" });
   }
 });
 
-router.get("/getSubmittedDocument", async (req, res) => {
+// ✅ Get submitted document by studentID and assignmentID
+router.get("/document", async (req, res) => {
   try {
     const { studentID, assignmentID } = req.query;
+
     if (!studentID || !assignmentID) {
       return res.status(400).json({ error: "Student ID and Assignment ID are required." });
     }
 
     const submission = await Submission.findOne({ studentID, assignmentID });
     if (!submission) {
-      return res.status(404).json({ error: "No submission found." });
+      return res.status(404).json({ error: "Submission not found." });
     }
 
-    res.setHeader("Content-Type", submission.contentType);
+    // Set correct content type and send document
+    res.set("Content-Type", submission.contentType);
     res.send(submission.document);
   } catch (err) {
     console.error("Error fetching submitted document:", err);
-    res.status(500).json({ error: "Failed to fetch submitted document" });
+    res.status(500).json({ error: "Failed to fetch document" });
   }
 });
 
+// ✅ Delete a submission
+router.delete("/delete", async (req, res) => {
+  try {
+    const { studentID, assignmentID } = req.body;
 
+    if (!studentID || !assignmentID) {
+      return res.status(400).json({ error: "Student ID and Assignment ID are required." });
+    }
 
-// ✅ Get submissions for a specific assignment
+    console.log(`Deleting submission for student: ${studentID}, assignment: ${assignmentID}`);
+
+    const deletedSubmission = await Submission.findOneAndDelete({ studentID, assignmentID });
+
+    if (!deletedSubmission) {
+      console.log("Submission not found in the database");
+      return res.status(404).json({ error: "Submission not found." });
+    }
+
+    console.log("Submission deleted successfully:", deletedSubmission);
+    res.status(200).json({ message: "Submission deleted successfully!" });
+  } catch (err) {
+    console.error("Error deleting submission:", err);
+    res.status(500).json({ error: "Failed to delete submission" });
+  }
+});
+
+// ✅ Request resubmission
+router.post("/resubmit", async (req, res) => {
+  try {
+    const { studentID, assignmentID } = req.body;
+
+    if (!studentID || !assignmentID) {
+      return res.status(400).json({ error: "Student ID and Assignment ID are required." });
+    }
+
+    // Find the submission
+    const submission = await Submission.findOne({ studentID, assignmentID });
+
+    if (!submission) {
+      return res.status(404).json({ error: "Submission not found." });
+    }
+
+    // Update the submission status to "pending"
+    submission.status = "pending";
+    await submission.save();
+
+    res.status(200).json({ message: "Resubmission requested successfully!" });
+  } catch (err) {
+    console.error("Error requesting resubmission:", err);
+    res.status(500).json({ error: "Failed to request resubmission" });
+  }
+});
+
+// ✅ Get all submissions for a specific assignment
 router.get("/", async (req, res) => {
   try {
     const { assignmentId } = req.query;
@@ -91,9 +166,7 @@ router.get("/", async (req, res) => {
       return res.status(400).json({ error: "Assignment ID is required." });
     }
 
-    // Find all submissions for this assignment
     const submissions = await Submission.find({ assignmentID: assignmentId });
-
     res.status(200).json(submissions);
   } catch (err) {
     console.error("Error fetching submissions:", err);

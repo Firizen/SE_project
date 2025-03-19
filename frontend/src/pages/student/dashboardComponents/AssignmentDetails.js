@@ -56,37 +56,41 @@ function AssignmentDetails({ assignment, resetSelection }) {
       alert("Please select a file before submitting.");
       return;
     }
-
+  
     const studentID = localStorage.getItem("studentID");
     if (!studentID) {
       alert("Student not logged in!");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("studentID", studentID);
     formData.append("assignmentID", assignment._id);
     formData.append("document", selectedFile);
-
+  
+    console.log("Submitting:", Object.fromEntries(formData)); // Debugging
+  
     try {
       const response = await fetch("http://localhost:5000/api/submissions/submit", {
         method: "POST",
         body: formData
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to submit assignment");
+        const errorMsg = await response.text();
+        throw new Error(`Failed to submit assignment: ${errorMsg}`);
       }
-
+  
       alert("Assignment submitted successfully!");
       setSubmitted(true);
       fetchSubmittedDocument(studentID, assignment._id);
       setFilePreview(null); // Clear preview after submission
     } catch (err) {
       console.error("Error submitting assignment:", err);
-      alert("Submission failed!");
+      alert(`Submission failed! ${err.message}`);
     }
   };
+  
 
   return (
     <div className="p-8 w-full h-full bg-white flex">
@@ -106,16 +110,17 @@ function AssignmentDetails({ assignment, resetSelection }) {
           <strong>Due Date:</strong> {new Date(assignment.dueDate).toLocaleString()}
         </p>
 
-        {!submitted && (
-          <div className="mt-4">
-            <label className="block text-gray-700">Upload Document:</label>
-            <input type="file" onChange={handleFileChange} className="border p-2 w-full" />
-          </div>
-        )}
+        <div className="mt-4">
+          <label className="block text-gray-700">Upload Document:</label>
+          <input type="file" onChange={handleFileChange} className="border p-2 w-full" />
+        </div>
 
         {submitted ? (
-          <button className="bg-gray-400 mt-6 text-white px-4 py-2 rounded-md shadow cursor-not-allowed" disabled>
-            Assignment Submitted
+          <button
+            onClick={handleSubmit}
+            className="bg-yellow-500 mt-6 text-white px-4 py-2 rounded-md shadow hover:bg-yellow-600"
+          >
+            Resubmit Assignment
           </button>
         ) : (
           <button
@@ -140,16 +145,7 @@ function AssignmentDetails({ assignment, resetSelection }) {
             )}
           </div>
         ) : uploadedFileURL ? (
-          <div className="w-full h-full">
-            <h4 className="text-lg font-semibold mb-2">Uploaded Document:</h4>
-            {uploadedFileType === "application/pdf" ? (
-              <iframe src={uploadedFileURL} className="w-full h-full border" title="PDF Preview"></iframe>
-            ) : uploadedFileType?.startsWith("image/") ? (
-              <img src={uploadedFileURL} alt="Submitted File" className="w-full h-auto" />
-            ) : (
-              <p className="text-gray-600">Preview not available for this file type.</p>
-            )}
-          </div>
+          <iframe src={uploadedFileURL} className="w-full h-full border" title="Submitted Document"></iframe>
         ) : (
           <p className="text-gray-600">No uploaded document found.</p>
         )}

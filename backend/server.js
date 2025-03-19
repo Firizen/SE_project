@@ -6,17 +6,15 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const mongoose = require("mongoose");
 
-// Initialize Express app
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Create HTTP server and integrate with Socket.io
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Adjust as per your frontend's URL
-    methods: ["GET", "POST", "DELETE"] // Allow DELETE requests
+    origin: "*",
+    methods: ["GET", "POST", "DELETE"]
   }
 });
 
@@ -27,21 +25,20 @@ connectDB();
 const assignmentRoutes = require("./routes/assignment");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/students");
-const submissionRoutes = require("./routes/submissions");
+const submissionRoutes = require("./routes/submissions"); // ✅ Ensure this route is correctly registered
 const notificationRoutes = require("./routes/notifications");
-const PastAssignment = require("./models/PastAssignment"); // Import the model
+const PastAssignment = require("./models/PastAssignment");
 
-// 🟢 Get all past assignments
+// ✅ API Route for past assignments
 app.get("/api/pastassignments", async (req, res) => {
   try {
-    const pastAssignments = await PastAssignment.find(); // Fetch from database
+    const pastAssignments = await PastAssignment.find();
     res.json(pastAssignments);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch past assignments" });
   }
 });
 
-// 🔴 DELETE route to remove a past assignment
 app.delete("/api/pastassignments/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -60,14 +57,14 @@ app.delete("/api/pastassignments/:id", async (req, res) => {
   }
 });
 
-// Use Routes
+// ✅ Register Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
-app.use("/api/submissions", submissionRoutes);
+app.use("/api/submissions", submissionRoutes); // ✅ Ensure this is correctly registered
 app.use("/api/students", studentRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-// WebSocket connection
+// WebSocket Connection
 io.on("connection", (socket) => {
   console.log("🔗 New client connected:", socket.id);
 
@@ -76,12 +73,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// MongoDB Change Stream for real-time updates
+// MongoDB Change Streams
 const db = mongoose.connection;
 db.once("open", () => {
   console.log("📡 Listening for database changes...");
 
-  // 🔹 Assignment Change Stream for Real-Time Updates
   const assignmentCollection = db.collection("assignments");
   const assignmentStream = assignmentCollection.watch();
 
@@ -91,7 +87,6 @@ db.once("open", () => {
     io.emit("assignmentsUpdated", { assignments: updatedAssignments });
   });
 
-  // 🔹 Submission Change Stream
   const submissionCollection = db.collection("submissions");
   const submissionStream = submissionCollection.watch();
 
@@ -100,7 +95,6 @@ db.once("open", () => {
     io.emit("submissionUpdate", change);
   });
 
-  // 🔹 Notification Change Stream
   const notificationCollection = db.collection("notifications");
   const notificationStream = notificationCollection.watch();
 
