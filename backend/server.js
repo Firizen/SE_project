@@ -18,18 +18,19 @@ const io = new Server(server, {
   }
 });
 
-// Connect to MongoDB
-connectDB();
+// ✅ Prevent database connection during Jest tests
+if (process.env.NODE_ENV !== "test") {
+  connectDB();
+}
 
 // Import Routes
 const assignmentRoutes = require("./routes/assignment");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/students");
-const submissionRoutes = require("./routes/submissions"); // ✅ Ensure this route is correctly registered
+const submissionRoutes = require("./routes/submissions");
 const notificationRoutes = require("./routes/notifications");
 const PastAssignment = require("./models/PastAssignment");
-const appealRoutes = require("./routes/appealRoutes"); // Import appeal routes
-
+const appealRoutes = require("./routes/appealRoutes");
 
 // ✅ API Route for past assignments
 app.get("/api/pastassignments", async (req, res) => {
@@ -50,9 +51,7 @@ app.delete("/api/pastassignments/:id", async (req, res) => {
       return res.status(404).json({ message: "Assignment not found" });
     }
 
-    // Emit real-time update to clients
     io.emit("assignmentDeleted", { id });
-
     res.status(200).json({ message: "Assignment deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting assignment", error: error.message });
@@ -62,55 +61,60 @@ app.delete("/api/pastassignments/:id", async (req, res) => {
 // ✅ Register Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
-app.use("/api/submissions", submissionRoutes); // ✅ Ensure this is correctly registered
+app.use("/api/submissions", submissionRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/appeals", appealRoutes); // Register appeal routes
+app.use("/api/appeals", appealRoutes);
 
+// ✅ Prevent WebSocket and Change Streams during tests
+if (process.env.NODE_ENV !== "test") {
+  io.on("connection", (socket) => {
+    console.log("🔗 New client connected:", socket.id);
 
-// WebSocket Connection
-io.on("connection", (socket) => {
-  console.log("🔗 New client connected:", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("❌ Client disconnected:", socket.id);
-  });
-});
-
-// MongoDB Change Streams
-const db = mongoose.connection;
-db.once("open", () => {
-  console.log("📡 Listening for database changes...");
-
-  const assignmentCollection = db.collection("assignments");
-  const assignmentStream = assignmentCollection.watch();
-
-  assignmentStream.on("change", async (change) => {
-    console.log("📢 Assignment updated:", change);
-    const updatedAssignments = await assignmentCollection.find().toArray();
-    io.emit("assignmentsUpdated", { assignments: updatedAssignments });
+    socket.on("disconnect", () => {
+      console.log("❌ Client disconnected:", socket.id);
+    });
   });
 
-  const submissionCollection = db.collection("submissions");
-  const submissionStream = submissionCollection.watch();
+  const db = mongoose.connection;
+  db.once("open", () => {
+    console.log("📡 Listening for database changes...");
 
-  submissionStream.on("change", (change) => {
-    console.log("📢 Submission updated:", change);
-    io.emit("submissionUpdate", change);
+    const assignmentCollection = db.collection("assignments");
+    const assignmentStream = assignmentCollection.watch();
+
+    assignmentStream.on("change", async (change) => {
+      console.log("📢 Assignment updated:", change);
+      const updatedAssignments = await assignmentCollection.find().toArray();
+      io.emit("assignmentsUpdated", { assignments: updatedAssignments });
+    });
+
+    const submissionCollection = db.collection("submissions");
+    const submissionStream = submissionCollection.watch();
+
+    submissionStream.on("change", (change) => {
+      console.log("📢 Submission updated:", change);
+      io.emit("submissionUpdate", change);
+    });
+
+    const notificationCollection = db.collection("notifications");
+    const notificationStream = notificationCollection.watch();
+
+    notificationStream.on("change", (change) => {
+      if (change.operationType === "insert") {
+        const newNotification = change.fullDocument;
+        console.log("🔔 New Notification:", newNotification);
+        io.emit("newNotification", newNotification);
+      }
+    });
   });
+}
 
-  const notificationCollection = db.collection("notifications");
-  const notificationStream = notificationCollection.watch();
+// ✅ Start server only if not in test mode
+if (process.env.NODE_ENV !== "test") {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
 
-  notificationStream.on("change", (change) => {
-    if (change.operationType === "insert") {
-      const newNotification = change.fullDocument;
-      console.log("🔔 New Notification:", newNotification);
-      io.emit("newNotification", newNotification);
-    }
-  });
-});
-
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// ✅ Export app and server for testing
+module.exports = { app, server };
