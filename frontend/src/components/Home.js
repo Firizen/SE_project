@@ -48,6 +48,20 @@ function Home() {
             </div>
           </div>
 
+          {/* Admin Section */}
+          <div className="w-full bg-white bg-opacity-90 p-8 rounded-xl shadow-lg flex flex-col items-center transition-all transform hover:scale-105">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-5">Admin</h2>
+            <div className="flex flex-col space-y-4 w-full items-center">
+              <Link to="/admin/login">
+                <button className="w-60 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md">
+                  Login
+                </button>
+              </Link>
+            </div>
+          </div>
+
+
+
         </div>
       </div>
     </div>

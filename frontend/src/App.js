@@ -9,6 +9,9 @@ import TeacherSignup from "./pages/teacher/TeacherSignup";
 import TeacherLogin from "./pages/teacher/TeacherLogin";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
   
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/student/signup" element={<StudentSignup />} />
         <Route path="/teacher/signup" element={<TeacherSignup />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
       </Routes>
     </Router>
   );
