@@ -15,6 +15,12 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Title, class name, teacher name, and due date are required." });
     }
 
+    // ✅ Check if an assignment with the same title already exists in the same class
+    const existingAssignment = await Assignment.findOne({ title, className });
+    if (existingAssignment) {
+      return res.status(400).json({ error: "Assignment with the same title already exists in this class." });
+    }
+
     const newAssignment = new Assignment({ title, description, className, teacherName, dueDate });
     await newAssignment.save();
 

@@ -62,40 +62,49 @@ router.post("/teacher-login", async (req, res) => {
 router.post("/student-signup", async (req, res) => {
   const { name, email, password, studentClass } = req.body;
 
-  // ✅ Ensure email ends with @example.com
   if (!email.endsWith("@gmail.com") && !email.endsWith("@cb.students.amrita.edu")) {
-    return res.status(400).json({ error: "Email must be from the domain @gmail.com or @cb.students.amrita.edu" });
+    return res.status(400).json({ error: "Email must be from @gmail.com or @cb.students.amrita.edu" });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  
   try {
     const student = new Student({ name, email, password: hashedPassword, studentClass });
     await student.save();
     res.status(201).json({ message: "Student registered" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (err.code === 11000) { // Duplicate email error
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+    res.status(400).json({ error: "Something went wrong" });
   }
 });
+
 
 
 
 // 📌 Teacher Signnup
 
 router.post("/teacher-signup", async (req, res) => {
-  const { name, email, password} = req.body;
+  const { name, email, password } = req.body;
 
   if (!email.endsWith("@gmail.com") && !email.endsWith("@cb.students.amrita.edu")) {
-    return res.status(400).json({ error: "Email must be from the domain @gmail.com or @cb.students.amrita.edu" });
+    return res.status(400).json({ error: "Email must be from @gmail.com or @cb.students.amrita.edu" });
   }
-  
+
   const hashedPassword = await bcrypt.hash(password, 10);
+
   try {
-    const teacher = new Teacher({ name, email, password: hashedPassword});
+    const teacher = new Teacher({ name, email, password: hashedPassword });
     await teacher.save();
     res.status(201).json({ message: "Teacher registered" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (err.code === 11000) { // Duplicate email error
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+    res.status(400).json({ error: "Something went wrong" });
   }
 });
+
 
 module.exports = router;

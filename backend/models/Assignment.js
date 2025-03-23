@@ -9,4 +9,7 @@ const assignmentSchema = new mongoose.Schema({
   dueDate: { type: Date, required: true } // Due date and time
 });
 
+// ✅ Enforce unique assignment titles within the same class
+assignmentSchema.index({ title: 1, className: 1 }, { unique: true });
+
 module.exports = mongoose.model("Assignment", assignmentSchema);
