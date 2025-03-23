@@ -41,3 +41,26 @@ test("submits form with valid inputs", async () => {
 
 
 });
+
+test("clears form fields when manually reset", () => {
+  render(<CreateAssignment />);
+
+  const titleInput = screen.getByPlaceholderText("Title");
+  const descriptionInput = screen.getByPlaceholderText("Description");
+  const classSelect = screen.getByRole("combobox");
+
+  // Fill in the form
+  fireEvent.change(titleInput, { target: { value: "Science Assignment" } });
+  fireEvent.change(descriptionInput, { target: { value: "Write a report on physics laws" } });
+  fireEvent.change(classSelect, { target: { value: "B" } });
+
+  // Manually simulate form reset
+  fireEvent.change(titleInput, { target: { value: "" } });
+  fireEvent.change(descriptionInput, { target: { value: "" } });
+  fireEvent.change(classSelect, { target: { value: "" } });
+
+  // Ensure the fields are cleared
+  expect(titleInput.value).toBe("");
+  expect(descriptionInput.value).toBe("");
+  expect(classSelect.value).toBe("");
+});
