@@ -61,6 +61,12 @@ router.post("/teacher-login", async (req, res) => {
 
 router.post("/student-signup", async (req, res) => {
   const { name, email, password, studentClass } = req.body;
+
+  // ✅ Ensure email ends with @example.com
+  if (!email.endsWith("@gmail.com") && !email.endsWith("@cb.students.amrita.edu")) {
+    return res.status(400).json({ error: "Email must be from the domain @gmail.com or @cb.students.amrita.edu" });
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const student = new Student({ name, email, password: hashedPassword, studentClass });
@@ -72,10 +78,16 @@ router.post("/student-signup", async (req, res) => {
 });
 
 
+
 // 📌 Teacher Signnup
 
 router.post("/teacher-signup", async (req, res) => {
   const { name, email, password} = req.body;
+
+  if (!email.endsWith("@gmail.com") && !email.endsWith("@cb.students.amrita.edu")) {
+    return res.status(400).json({ error: "Email must be from the domain @gmail.com or @cb.students.amrita.edu" });
+  }
+  
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const teacher = new Teacher({ name, email, password: hashedPassword});

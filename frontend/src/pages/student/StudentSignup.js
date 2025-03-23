@@ -17,7 +17,7 @@ function StudentSignup() {
       alert("Student Registered Successfully! Please login.");
       navigate("/student/login");
     } catch (error) {
-      alert("Error: " + (error.response?.data?.message || "Something went wrong"));
+      alert("Error: " + (error.response?.data?.error || "Something went wrong"));
     }
   };
 
