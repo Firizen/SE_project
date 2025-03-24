@@ -87,8 +87,8 @@ router.post("/teacher-signup", async (req, res) => {
 });
 
 const ADMIN_CREDENTIALS = {
-  email: "admin@institute.com",  // Change this to your admin email
-  password: "securepassword123" // Change this to your secure password
+  email: "admin@gmail.com",  // Change this to your admin email
+  password: "test" // Change this to your secure password
 };
 
 // Admin Login Route
