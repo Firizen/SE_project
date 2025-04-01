@@ -72,7 +72,7 @@ router.post("/student-signup", async (req, res) => {
 });
 
 
-// 📌 Teacher Signnup
+// 📌 Teacher Signup
 
 router.post("/teacher-signup", async (req, res) => {
   const { name, email, password} = req.body;
@@ -85,5 +85,30 @@ router.post("/teacher-signup", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+const ADMIN_CREDENTIALS = {
+  email: "admin@gmail.com",  // Change this to your admin email
+  password: "test" // Change this to your secure password
+};
+
+// Admin Login Route
+router.post("/admin-login", (req, res) => {
+  const { email, password } = req.body;
+
+  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+      // Generate JWT Token
+      const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
+
+      res.json({
+          message: "Admin login successful",
+          token,
+          admin: { name: "Admin", email }
+      });
+  } else {
+      res.status(401).json({ message: "Invalid admin credentials" });
+  }
+});
+
+
 
 module.exports = router;
