@@ -11,4 +11,8 @@ const AIPlagiarismResultSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("PlagiarismResult", AIPlagiarismResultSchema);
+/*module.exports = mongoose.model("PlagiarismResult", AIPlagiarismResultSchema);*/
+
+const PlagiarismResult = mongoose.model("PlagiarismResult", AIPlagiarismResultSchema);
+module.exports = PlagiarismResult;
+
