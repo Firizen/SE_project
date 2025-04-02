@@ -3,6 +3,7 @@ import CreateAssignment from "./dashboardComponents/CreateAssignment";
 import ViewAssignments from "./dashboardComponents/ViewAssignments";
 import ViewPastAssignments from "./dashboardComponents/PastAssignments";
 import ViewAppeals from "./dashboardComponents/ViewAppeals";
+import ViewPlagiarismResults from "./dashboardComponents/ViewPlagiarismResults";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
@@ -74,6 +75,12 @@ function TeacherDashboard() {
           >
             View Appeals
           </button>
+          <button 
+            onClick={() => setActiveSection(activeSection === "viewPlagiarism" ? null : "viewPlagiarism")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
+            View Plagiarism Results
+          </button>
         </div>
 
         {/* Content */}
@@ -82,6 +89,7 @@ function TeacherDashboard() {
           {activeSection === "view" && <ViewAssignments />}
           {activeSection === "viewPast" && <ViewPastAssignments />}
           {activeSection === "viewAppeals" && <ViewAppeals />}
+          {activeSection === "viewPlagiarism" && <ViewPlagiarismResults />}
 
           {/* Default Home Page */}
           {activeSection === null && (

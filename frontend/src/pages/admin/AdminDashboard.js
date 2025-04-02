@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ManageUsers from "./dashboardComponents/ManageUsers";
+import ViewPlagiarismResults from "./dashboardComponents/ViewPlagiarismResults";
 import RegularPlagiarismCheck from "./dashboardComponents/RegularPlagiarismCheck";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -9,6 +10,7 @@ function AdminDashboard() {
   const [activeSection, setActiveSection] = useState(null);
   const [similarityResults, setSimilarityResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const admin = JSON.parse(localStorage.getItem("adminDetails")) || { name: "Admin", email: "admin@example.com" };
 
@@ -44,6 +46,7 @@ function AdminDashboard() {
     }
   };
 
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
@@ -78,16 +81,16 @@ function AdminDashboard() {
         {/* Sidebar */}
         <div className="w-64 bg-gray-800 text-white flex flex-col p-4 space-y-4">
           <button 
-            onClick={() => setActiveSection("manageUsers")} 
-            className="py-3 px-5 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-bold text-lg transition-all shadow-md"
-          >
-            Manage Users
-          </button>
-          <button 
-            onClick={() => setActiveSection("plagiarism")} 
-            className="py-3 px-5 rounded-lg bg-gray-700 hover:bg-gray-600 text-white font-bold text-lg transition-all shadow-md"
+            onClick={() => setActiveSection(activeSection === "plagiarism" ? null : "plagiarism")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
           >
             Check Assignments
+          </button>
+          <button 
+            onClick={() => setActiveSection(activeSection === "manageUsers" ? null : "manageUsers")} 
+            className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
+            Manage Users
           </button>
         </div>
 
@@ -99,6 +102,7 @@ function AdminDashboard() {
               similarityResults={similarityResults} 
             />
           )}
+          {activeSection === "plagiarism" && <ViewPlagiarismResults />} //might need to remove this, based on conflict
           {activeSection === "manageUsers" && <ManageUsers />}
 
           {/* Display Plagiarism Results in Table ONLY after running the check */}
@@ -133,6 +137,7 @@ function AdminDashboard() {
               )}
             </div>
           )}
+
 
           {/* Default Home Page */}
           {activeSection === null && (
