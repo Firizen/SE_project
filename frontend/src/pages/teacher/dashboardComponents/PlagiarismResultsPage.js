@@ -127,7 +127,7 @@ function PlagiarismResultsPage() {
 
             {/* Plagiarized Count Part */}
             <span> {/* No specific color needed unless desired */}
-                AI-Generated: {plagiarizedCount} submission(s)
+                AI-Generated: {plagiarizedCount} submission(s) out of {plagiarismResults.length} submissions
             </span>
          </div>
       )}
