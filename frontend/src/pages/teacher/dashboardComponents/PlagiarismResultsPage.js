@@ -1,110 +1,178 @@
+// PlagiarismResultsPage.js
 import { useState, useEffect } from "react";
-// useParams is no longer strictly needed for the fetch logic, but might remain
-// depending on your routing setup. useNavigate is still used for the back button.
 import { useParams, useNavigate } from "react-router-dom";
 
-// Console log remains for debugging mount
-console.log("🟢 PlagiarismResultsPage component mounted! (Fetching ALL results mode)");
+console.log("🟢 PlagiarismResultsPage component mounted! (Fetching results for SPECIFIC assignment)");
 
 function PlagiarismResultsPage() {
-  // We still might get an assignmentId from the URL depending on the route,
-  // but we won't use it for fetching ALL results.
   const { assignmentId } = useParams();
-  console.log("📌 assignmentId from useParams (INFO ONLY):", assignmentId); // Log for info
+  console.log("📌 assignmentId from useParams:", assignmentId);
 
   const [plagiarismResults, setPlagiarismResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // This effect now runs only once on mount because of the empty dependency array []
-    console.log("🎯 useEffect triggered (Fetching ALL results)");
+    // ... (fetch logic remains the same as the previous version) ...
+    if (!assignmentId) {
+      console.log("⚠️ No assignmentId found in URL params.");
+      setLoading(false);
+      setPlagiarismResults([]);
+      setFetchError("No Assignment ID provided.");
+      return;
+    }
 
-    const fetchAllPlagiarismResults = async () => {
+    console.log(`🎯 useEffect triggered (Fetching results for assignment: ${assignmentId})`);
+
+    const fetchPlagiarismResultsForAssignment = async () => {
+      setLoading(true);
+      setFetchError(null); // Reset error
+      setPlagiarismResults([]); // Clear previous results
+
       try {
-        console.log("🚀 Fetching ALL plagiarism results...");
-
-        // MODIFICATION: Changed the API endpoint to fetch ALL results.
-        // Assumes your backend has an endpoint like GET /api/plagiarism-results
-        // that returns an array of all plagiarism result documents.
-        const res = await fetch(`http://localhost:5000/api/aiplagiarism-results`);
+        console.log(`🚀 Fetching plagiarism results for assignment ${assignmentId}...`);
+        const res = await fetch(`http://localhost:5000/api/aiplagiarism-results/${assignmentId}`);
 
         if (!res.ok) {
-          console.error("❌ Error fetching all plagiarism results, status:", res.status);
-          // Consider setting an error state here to show feedback to the user
-          setPlagiarismResults([]); // Clear any previous results
-          return; // Exit the function
+          let errorMsg = `Error fetching plagiarism results (Status: ${res.status})`;
+          if (res.status === 404) {
+            console.log(`ℹ️ No results found for assignment ${assignmentId}.`);
+            errorMsg = "No plagiarism results found for this assignment.";
+          } else {
+            console.error(`❌ Error fetching plagiarism results for ${assignmentId}, status:`, res.status);
+          }
+          setFetchError(errorMsg);
+          setPlagiarismResults([]);
+          return;
         }
 
         const plagiarismData = await res.json();
-        console.log("📜 ALL Plagiarism Results received:", plagiarismData);
-
-        // IMPORTANT: Ensure your backend includes 'assignmentID' in each result object
-        // if you want to display which assignment a result belongs to.
+        console.log(`📜 Plagiarism Results received for ${assignmentId}:`, plagiarismData);
         setPlagiarismResults(plagiarismData);
 
       } catch (error) {
-        console.error("❌ Error fetching all plagiarism results:", error);
-        // Consider setting an error state here
-        setPlagiarismResults([]); // Clear results on error
+        console.error(`❌ Error fetching plagiarism results for ${assignmentId}:`, error);
+        setFetchError("An unexpected error occurred while fetching results.");
+        setPlagiarismResults([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAllPlagiarismResults();
+    fetchPlagiarismResultsForAssignment();
 
-    // MODIFICATION: Changed dependency array to [] to run only on mount.
-  }, []); // Empty dependency array
+  }, [assignmentId]);
+
+  // --- Calculation for Average Score ---
+  const calculateAverageScore = () => {
+    if (loading || fetchError || plagiarismResults.length === 0) return null;
+
+    let sum = 0;
+    let count = 0;
+    plagiarismResults.forEach(result => {
+      if (result.ai_plagiarism_score != null && typeof result.ai_plagiarism_score === 'number' && !isNaN(result.ai_plagiarism_score)) {
+        sum += result.ai_plagiarism_score;
+        count++;
+      }
+    });
+
+    if (count === 0) return null; // Return null if no valid scores, handle "N/A" in render
+
+    const average = sum / count;
+    return average.toFixed(2); // Return the number string, add % in render
+  };
+
+  // --- Calculation for Plagiarized Count ---
+  const calculatePlagiarizedCount = () => {
+    // No need to check loading/error here if only called when plagiarismResults has data
+    if (plagiarismResults.length === 0) return 0;
+
+    let plagiarizedCount = 0;
+    plagiarismResults.forEach(result => {
+      // Assuming "0" means AI-Generated/Plagiarized
+      if (result.label === "0") {
+        plagiarizedCount++;
+      }
+    });
+    return plagiarizedCount;
+  };
+
+  // Calculate values on each render
+  const averageScoreValue = calculateAverageScore();
+  const plagiarizedCount = calculatePlagiarizedCount();
+
 
   return (
     <div className="p-6">
       <button onClick={() => navigate(-1)} className="bg-gray-600 text-white px-4 py-2 rounded mb-4">
         ← Back
       </button>
-      {/* MODIFICATION: Changed title slightly for clarity */}
-      <h2 className="text-2xl font-bold mb-4">All Plagiarism Results</h2>
 
+      <h2 className="text-2xl font-bold mb-2">
+        Plagiarism Results for Assignment
+      </h2>
+
+      {/* --- MODIFIED: Display Average Score AND Plagiarized Count --- */}
+      {/* Show this section only if loading is done, no errors, and there are results */}
+      {!loading && !fetchError && plagiarismResults.length > 0 && (
+         <div className="text-lg font-semibold mb-4 flex items-center space-x-4"> {/* Use flexbox for layout */}
+            {/* Average Score Part */}
+            <span className={averageScoreValue !== null ? 'text-red-600' : 'text-gray-500'}> {/* Conditional red color */}
+                Average Score: {averageScoreValue !== null ? `${averageScoreValue}%` : 'N/A'}
+            </span>
+
+            {/* Separator */}
+            <span>|</span>
+
+            {/* Plagiarized Count Part */}
+            <span> {/* No specific color needed unless desired */}
+                AI-Generated: {plagiarizedCount} submission(s)
+            </span>
+         </div>
+      )}
+      {/* Handle case where there are no results (even if fetch was successful) */}
+      {!loading && !fetchError && plagiarismResults.length === 0 && (
+          <p className="text-gray-600 mb-4">No submissions found for this assignment to analyze.</p>
+      )}
+
+
+      {/* Display fetch errors if any */}
+      {fetchError && !loading && <p className="text-red-500 mb-4">Error: {fetchError}</p>}
+
+      {/* Display Loading or Table */}
       {loading ? (
-        <p>Loading...</p>
-      ) : plagiarismResults.length === 0 ? (
-        // MODIFICATION: Updated empty state message
-        <p>No plagiarism results found in the system.</p>
-      ) : (
+        <p>Loading results...</p>
+      ) : !fetchError && plagiarismResults.length > 0 ? ( // Show table only if no error and results exist
         <table className="min-w-full border border-gray-300 bg-white">
+          {/* Table Head */}
           <thead>
             <tr className="bg-gray-200">
-              {/* ADDED: Column for Assignment ID */}
-              <th className="border px-4 py-2">Assignment ID</th>
               <th className="border px-4 py-2">Filename</th>
               <th className="border px-4 py-2">Plagiarism Score</th>
               <th className="border px-4 py-2">Label</th>
               <th className="border px-4 py-2">Message</th>
             </tr>
           </thead>
+          {/* Table Body */}
           <tbody>
             {plagiarismResults.map((result, index) => (
-              // Using result._id is generally better if available, otherwise index is okay
               <tr key={result._id || index} className="text-center">
-                 {/* ADDED: Displaying the Assignment ID */}
-                 {/* Make sure 'assignmentID' exists in your result objects from the API */}
-                <td className="border px-4 py-2 text-xs">{result.assignmentID || 'N/A'}</td>
                 <td className="border px-4 py-2">{result.filename}</td>
                 <td className="border px-4 py-2">
-                {/* Check if the score is not null/undefined AND is a number */}
                   {result.ai_plagiarism_score != null && typeof result.ai_plagiarism_score === 'number'
-                ? `${result.ai_plagiarism_score}%` // If true, display number with %
-                    : result.ai_plagiarism_score      // If false, display the original value
-                   }</td>
+                    ? `${result.ai_plagiarism_score}%`
+                    : result.ai_plagiarism_score}
+                </td>
                 <td className={`border px-4 py-2 ${
                     result.label === "0" ? "text-red-500" :
                     result.label === "1" ? "text-green-500" :
-                    "text-gray-500" // Optional: Default color for unexpected values
+                    "text-gray-500"
                   }`}>
-                {
-                  result.label === "0" ? "AI-Generated" :
-                  result.label === "1" ? "Human-Generated" :
-                  "Unknown Status" // Optional: Default text for unexpected values
+                  {
+                    result.label === "0" ? "AI-Generated" :
+                    result.label === "1" ? "Human-Generated" :
+                    "Unknown Status"
                   }
                 </td>
                 <td className="border px-4 py-2">{result.message}</td>
@@ -112,7 +180,7 @@ function PlagiarismResultsPage() {
             ))}
           </tbody>
         </table>
-      )}
+      ) : null /* Error case already handled above */ }
     </div>
   );
 }

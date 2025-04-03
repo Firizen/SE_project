@@ -1,85 +1,39 @@
+// airesults.js
 const express = require("express");
 const router = express.Router();
 const PlagiarismResult = require("../models/AIPlagiarismResult");
-// ObjectId is no longer needed for THIS specific route handler
-// const { ObjectId } = require("mongodb"); // <-- Commented out or remove if not used elsewhere in file
+// ObjectId is likely no longer needed for this route if assignmentID is a String
+// const { ObjectId } = require("mongodb"); // <-- Comment out or remove
 
-// --- MODIFIED ROUTE to fetch ALL results ---
-// Changed path from "/:assignmentId" to "/"
-router.get("/", async (req, res) => {
+// --- Route to fetch results by specific Assignment ID ---
+router.get("/:assignmentId", async (req, res) => {
   try {
-    // Log that we are fetching all results
-    console.log("🚀 Request received to fetch ALL plagiarism results.");
+    const assignmentId = req.params.assignmentId; // Get the ID as a string from the URL
+    console.log(`🚀 Request received to fetch plagiarism results for Assignment ID: ${assignmentId}`);
 
-    // MODIFICATION: Removed code related to req.params.assignmentId
-    // const assignmentId = req.params.assignmentId;
-    // let objectId;
-    // try { objectId = ObjectId(assignmentId); ... } catch ...
-    // console.log("🔍 Querying DB with:", { assignmentID: objectId });
+    // --- MODIFICATION: Query directly using the String ID ---
+    // Assuming assignmentID in your PlagiarismResult schema is of type String
+    const query = { assignmentID: assignmentId }; // Use the string directly in the query
 
-    // MODIFICATION: Changed query to find({}) to fetch all documents
-    console.log("🔍 Querying DB for ALL documents in PlagiarismResult collection.");
-    const results = await PlagiarismResult.find({}); // Find ALL results
-    console.log(`📊 Found ${results.length} plagiarism results.`);
+    console.log("🔍 Querying DB with (using string ID):", query);
+    const results = await PlagiarismResult.find(query); // Find where the assignmentID string matches
 
-    // MODIFICATION: Removed the 404 check specific to not finding results for *one* ID.
-    // An empty array is a valid response for "find all".
-    // if (results.length === 0) {
-    //   console.log("❌ No plagiarism results found for:", assignmentId); // This log is no longer relevant
-    //   return res.status(404).json({ error: "No plagiarism results found" });
-    // }
-
-    console.log("✅ Successfully retrieved all results.");
-    // Send the results (which could be an empty array if the collection is empty)
-    res.json(results);
-
-  } catch (err) {
-    // Keep generic error handling
-    console.error("❌ Error fetching all plagiarism results:", err);
-    res.status(500).json({ error: "Failed to fetch plagiarism results" });
-  }
-});
-
-
-// --- ORIGINAL ROUTE (Optional: Keep if needed, maybe change path) ---
-// If you still need the route to fetch by specific ID, you can keep it,
-// BUT make sure its path is different or defined AFTER the general "/" route.
-// For example, you could rename the original one:
-/*
-router.get("/by-assignment/:assignmentId", async (req, res) => {
-  try {
-    const assignmentId = req.params.assignmentId;
-    console.log("📩 Received Assignment ID:", assignmentId);
-
-    // You might need ObjectId again here if you uncomment this section
-    const { ObjectId } = require("mongodb"); 
-
-    let objectId;
-    try {
-      objectId = ObjectId(assignmentId);
-      console.log("🆔 Converted to ObjectId:", objectId);
-    } catch (error) {
-      console.error("❌ Invalid ObjectId format:", assignmentId);
-      return res.status(400).json({ error: "Invalid assignment ID format" });
-    }
-
-    console.log("🔍 Querying DB with:", { assignmentID: objectId });
-    // Original query used objectId here, ensure your model expects ObjectId or string
-    const results = await PlagiarismResult.find({ assignmentID : objectId }); // Use objectId
-
-    if (!results || results.length === 0) { // Check if results is null or empty
-      console.log("❌ No plagiarism results found for:", assignmentId);
-      // Changed to send empty array with 404 or just message
+    // Check if any results were found for this specific ID
+    if (!results || results.length === 0) {
+      console.log(`ℹ️ No plagiarism results found for Assignment ID (string): ${assignmentId}`);
+      // Send 404 Not Found - the frontend expects this to show a message
       return res.status(404).json({ message: "No plagiarism results found for this assignment ID" });
     }
 
-    console.log("📜 Query Results:", results);
-    res.json(results);
+    console.log(`📊 Found ${results.length} results for Assignment ID: ${assignmentId}.`);
+    console.log("✅ Successfully retrieved results by ID.");
+    res.json(results); // Send the filtered results
+
   } catch (err) {
-    console.error("Error fetching plagiarism results by ID:", err);
+    // Generic error handling
+    console.error(`❌ Error fetching plagiarism results for ID ${req.params.assignmentId}:`, err);
     res.status(500).json({ error: "Failed to fetch plagiarism results" });
   }
 });
-*/
 
 module.exports = router;

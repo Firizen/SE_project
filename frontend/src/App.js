@@ -31,7 +31,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/teacher/aiplagiarism-results" element={<ViewPlagiarismResults />} />
-        <Route path="/aiplagiarism-results" element={<PlagiarismResultsPage />} />
+        <Route path="/aiplagiarism-results/:assignmentId" element={<PlagiarismResultsPage />} />
 
       </Routes>
     </Router>
