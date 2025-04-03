@@ -30,8 +30,8 @@ function App() {
         <Route path="/teacher/signup" element={<TeacherSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/teacher/plagiarism-results" element={<ViewPlagiarismResults />} />
-        <Route path="/teacher/plagiarism-results/:assignmentId" element={<PlagiarismResultsPage />} />
+        <Route path="/teacher/aiplagiarism-results" element={<ViewPlagiarismResults />} />
+        <Route path="/aiplagiarism-results" element={<PlagiarismResultsPage />} />
 
       </Routes>
     </Router>

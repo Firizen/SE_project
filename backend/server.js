@@ -77,7 +77,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/appeals", appealRoutes); // Register appeal routes
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/ai-check", aiCheckRoutes);
-app.use("/api/plagiarism-results", airesults);
+app.use("/api/aiplagiarism-results", airesults);
 
 
 

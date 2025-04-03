@@ -35,7 +35,7 @@ function ViewPlagiarismResults() {
             <li key={assignment._id} className="p-4 bg-gray-200 rounded-lg flex justify-between items-center">
               <span className="text-lg font-semibold">{assignment.title}</span>
               <button
-                onClick={() => navigate(`/api/teacher/plagiarism-results?${assignment._id}`)}
+                onClick={() => navigate(`/aiplagiarism-results`)}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition"
               >
                 View Results

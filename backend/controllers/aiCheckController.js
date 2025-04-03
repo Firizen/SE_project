@@ -8,7 +8,6 @@ const DB_NAME = "studentPortal";
 const COLLECTION_NAME = "submissions";
 const RESULTS_COLLECTION = "plagiarism_results";
 const DOWNLOADS_DIR = path.join("C:", "Users", "dvpry", "Downloads", "Content");
-
 if (!fs.existsSync(DOWNLOADS_DIR)) {
     fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 }
@@ -44,7 +43,7 @@ exports.downloadFiles = async (req, res) => {
                     if (!student || !student.name) continue;
 
                     const sanitizedStudentName = sanitizeFilename(student.name);
-                    const filePath = path.join(DOWNLOADS_DIR, `${doc._id}_${sanitizedStudentName}.docx`); // Include submission ID in filename
+                    const filePath = path.join(DOWNLOADS_DIR, `${doc._id}_${doc.assignmentID}_${sanitizedStudentName}.docx`); // Include submission ID in filename
                     fs.writeFileSync(filePath, doc.document.buffer);
                     downloadedFiles++;
                 } catch (fileError) {
@@ -92,6 +91,7 @@ exports.runAI = async (req, res) => {
                 // Extract submissionID from filename (assumes filename format: "submissionID_studentName.docx")
                 const fileNameParts = doc.File.split("_");
                 const submissionID = fileNameParts[0]; // Get submissionID from filename
+                const assignmentID = fileNameParts[1];
 
                 if (!ObjectId.isValid(submissionID)) {
                     console.error(`Invalid submissionID extracted: ${submissionID}`);
@@ -100,6 +100,7 @@ exports.runAI = async (req, res) => {
 
                 return {
                     submissionID: new ObjectId(submissionID), // Use correct submission ID
+                    assignmentID: new ObjectId(assignmentID),
                     filename: doc.File,
                     perplexity: doc.Results?.Perplexity ?? null,
                     burstiness: doc.Results?.Burstiness ?? null,
