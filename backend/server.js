@@ -34,6 +34,7 @@ const appealRoutes = require("./routes/appealRoutes"); // Import appeal routes
 const teacherRoutes=require("./routes/teachers");
 const aiCheckRoutes = require("./routes/aiCheckRoutes");
 const airesults = require("./routes/airesults");
+const allAssignments = require("./routes/allAssignments")
 
 
 
@@ -79,7 +80,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/appeals", appealRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/ai-check", aiCheckRoutes);
-app.use("/api/plagiarism-results", airesults);
+app.use("/api/aiplagiarism-results", airesults);
+app.use("/api/allassignments", allAssignments);
 
 // ✅ Function to Run Similarity Check
 const runSimilarityCheck = () => {

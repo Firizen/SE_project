@@ -172,6 +172,9 @@ router.get("/", async (req, res) => {
     console.error("Error fetching submissions:", err);
     res.status(500).json({ error: "Failed to fetch submissions" });
   }
+
+
 });
+
 
 module.exports = router;

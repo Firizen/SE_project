@@ -33,9 +33,19 @@ function ViewPlagiarismResults() {
         <ul className="space-y-4">
           {assignments.map((assignment) => (
             <li key={assignment._id} className="p-4 bg-gray-200 rounded-lg flex justify-between items-center">
-              <span className="text-lg font-semibold">{assignment.title}</span>
+            {/* Container for Title and Class Name (Left Side) */}
+            <div>
+              {/* Assignment Title */}
+              <span className="block text-lg font-semibold">{assignment.title}</span>
+        
+              {/* Class Name - Displayed below the title */}
+              {/* Added some styling: text-sm for smaller font, text-gray-600 for less emphasis, mt-1 for spacing */}
+              <p className="block text-sm text-gray-600 mt-1">
+                  Class: {assignment.className}
+              </p>
+            </div>
               <button
-                onClick={() => navigate(`/api/teacher/plagiarism-results?${assignment._id}`)}
+                onClick={() => navigate(`/aiplagiarism-results/${assignment._id}`)}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition"
               >
                 View Results

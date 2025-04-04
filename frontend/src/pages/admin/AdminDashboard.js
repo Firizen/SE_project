@@ -1,7 +1,10 @@
 import { useState } from "react";
 import ManageUsers from "./dashboardComponents/ManageUsers";
+
 import ViewPlagiarismResults from "./dashboardComponents/ViewPlagiarismResults";
 import RegularPlagiarismCheck from "./dashboardComponents/RegularPlagiarismCheck";
+
+import ViewAllAssignments from "./dashboardComponents/ViewAllAssignments"; 
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
@@ -50,7 +53,7 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <header className="w-full bg-red-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
+      <header className="w-full bg-purple-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
         <h1 className="text-2xl font-bold font-serif">Admin Dashboard</h1>
         <div className="flex items-center space-x-4">
           <div 
@@ -92,6 +95,14 @@ function AdminDashboard() {
           >
             Manage Users
           </button>
+
+           {/* --- ADDED BUTTON --- */}
+           <button
+            onClick={() => setActiveSection(activeSection === "allAssignments" ? null : "allAssignments")}
+             className="py-2 px-4 rounded bg-gray-700 hover:bg-gray-600 transition"
+          >
+            View All Assignments
+          </button>
         </div>
 
         {/* Content */}
@@ -104,6 +115,7 @@ function AdminDashboard() {
           )}
           {activeSection === "plagiarism" && <ViewPlagiarismResults />} //might need to remove this, based on conflict
           {activeSection === "manageUsers" && <ManageUsers />}
+          {activeSection === "allAssignments" && <ViewAllAssignments />}
 
           {/* Default Home Page */}
           {activeSection === null && (

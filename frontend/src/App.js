@@ -65,7 +65,10 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard onCheckSimilarity={handleCheckSimilarity} checking={checking} similarityResults={similarityResults} />} />
         //<Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/teacher/plagiarism-results" element={<ViewPlagiarismResults />} />
-        <Route path="/teacher/plagiarism-results/:assignmentId" element={<PlagiarismResultsPage />} />
+        <Route path="/teacher/plagiarism-results/:assignmentId" element={<PlagiarismResultsPage />} />  //this is probably useless. need to check
+
+        //this one from admin
+        <Route path="/aiplagiarism-results/:assignmentId" element={<PlagiarismResultsPage />} />
 
 
       </Routes>
