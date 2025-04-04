@@ -1,12 +1,19 @@
 import { useState } from "react";
-import ViewPlagiarismResults from "./dashboardComponents/ViewPlagiarismResults";
 import ManageUsers from "./dashboardComponents/ManageUsers";
+
+import ViewPlagiarismResults from "./dashboardComponents/ViewPlagiarismResults";
+import RegularPlagiarismCheck from "./dashboardComponents/RegularPlagiarismCheck";
+
 import ViewAllAssignments from "./dashboardComponents/ViewAllAssignments"; 
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import axios from "axios";
 
 function AdminDashboard() {
   const [activeSection, setActiveSection] = useState(null);
+  const [similarityResults, setSimilarityResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const admin = JSON.parse(localStorage.getItem("adminDetails")) || { name: "Admin", email: "admin@example.com" };
 
@@ -16,12 +23,39 @@ function AdminDashboard() {
     window.location.href = "/admin/login";
   };
 
+  const onCheckSimilarity = async () => {
+    try {
+      console.log("🔍 Running Plagiarism Check...");
+      setShowResults(false); // Hide previous results while checking
+
+      // Run similarity check
+      await axios.post("http://localhost:5000/api/similarity", { threshold: 30 });
+
+      // Fetch updated results
+      const response = await axios.get("http://localhost:5000/api/plagiarism-results");
+
+      if (response.data.results && Array.isArray(response.data.results) && response.data.results.length > 0) {
+        setSimilarityResults(response.data.results);
+        setShowResults(true); // Show results after checking
+        console.log("✅ Similarity Results:", response.data.results);
+      } else {
+        setSimilarityResults([]);
+        setShowResults(true); // Show "No results" message
+        console.warn("⚠️ No valid results found.");
+      }
+    } catch (error) {
+      console.error("❌ Error running similarity check:", error);
+      setShowResults(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
       <header className="w-full bg-purple-600 text-white py-4 px-6 flex justify-between items-center shadow-md">
         <h1 className="text-2xl font-bold font-serif">Admin Dashboard</h1>
-        <div className="flex items-center space-x-4"> 
+        <div className="flex items-center space-x-4">
           <div 
             className="relative" 
             onMouseEnter={() => setShowDropdown(true)} 
@@ -73,7 +107,13 @@ function AdminDashboard() {
 
         {/* Content */}
         <div className="flex-1 p-8 mt-4">
-          {activeSection === "plagiarism" && <ViewPlagiarismResults />}
+          {activeSection === "plagiarism" && (
+            <RegularPlagiarismCheck 
+              onCheckSimilarity={onCheckSimilarity} 
+              similarityResults={similarityResults} 
+            />
+          )}
+          {activeSection === "plagiarism" && <ViewPlagiarismResults />} //might need to remove this, based on conflict
           {activeSection === "manageUsers" && <ManageUsers />}
           {activeSection === "allAssignments" && <ViewAllAssignments />}
 

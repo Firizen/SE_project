@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+const { spawn } = require("child_process");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const mongoose = require("mongoose");
@@ -18,15 +19,16 @@ const io = new Server(server, {
   }
 });
 
-// Connect to MongoDB
-connectDB();
+// ✅ Connect to MongoDB
+connectDB().then(() => console.log("✅ MongoDB Connected"));
 
-// Import Routes
+// ✅ Import Routes
 const assignmentRoutes = require("./routes/assignment");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/students");
-const submissionRoutes = require("./routes/submissions"); // ✅ Ensure this route is correctly registered
+const submissionRoutes = require("./routes/submissions");
 const notificationRoutes = require("./routes/notifications");
+
 const PastAssignment = require("./models/PastAssignment");
 const appealRoutes = require("./routes/appealRoutes"); // Import appeal routes
 const teacherRoutes=require("./routes/teachers");
@@ -72,60 +74,118 @@ app.use((req, res, next) => {
 // ✅ Register Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/assignments", assignmentRoutes);
-app.use("/api/submissions", submissionRoutes); // ✅ Ensure this is correctly registered
+app.use("/api/submissions", submissionRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api/appeals", appealRoutes); // Register appeal routes
+app.use("/api/appeals", appealRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/ai-check", aiCheckRoutes);
 app.use("/api/aiplagiarism-results", airesults);
 app.use("/api/allassignments", allAssignments);
 
+// ✅ Function to Run Similarity Check
+const runSimilarityCheck = () => {
+  return new Promise((resolve, reject) => {
+    console.log("🚀 Running similarity.py script...");
 
+    const process = spawn("python3", ["similarity.py"]);
+    let result = "";
+    let errorData = "";
 
-// WebSocket Connection
-io.on("connection", (socket) => {
-  console.log("🔗 New client connected:", socket.id);
+    process.stdout.on("data", (data) => {
+      console.log("📄 Output from similarity.py:", data.toString());
+      result += data.toString();
+    });
 
-  socket.on("disconnect", () => {
-    console.log("❌ Client disconnected:", socket.id);
+    process.stderr.on("data", (data) => {
+      console.error("❌ Error in similarity.py:", data.toString());
+      errorData += data.toString();
+    });
+
+    process.on("close", async (code) => {
+      if (code === 0) {
+        try {
+          const parsedResult = JSON.parse(result);
+          resolve(parsedResult);
+        } catch (error) {
+          reject(new Error("❌ JSON Parsing Error: " + error.message));
+        }
+      } else {
+        reject(new Error("❌ similarity.py exited with code: " + code + " | Error: " + errorData));
+      }
+    });
   });
-});
+};
 
-// MongoDB Change Streams
-const db = mongoose.connection;
-db.once("open", () => {
-  console.log("📡 Listening for database changes...");
 
-  const assignmentCollection = db.collection("assignments");
-  const assignmentStream = assignmentCollection.watch();
 
-  assignmentStream.on("change", async (change) => {
-    console.log("📢 Assignment updated:", change);
-    const updatedAssignments = await assignmentCollection.find().toArray();
-    io.emit("assignmentsUpdated", { assignments: updatedAssignments });
-  });
+// ✅ API to Run Similarity Check and Store Only New Results
+app.post("/api/similarity", async (req, res) => {
+  try {
+    console.log("🔍 Checking for new submissions to process...");
 
-  const submissionCollection = db.collection("submissions");
-  const submissionStream = submissionCollection.watch();
+    const similarityCollection = mongoose.connection.collection("plagiarismresults");
+    const submissionCollection = mongoose.connection.collection("submissions");
 
-  submissionStream.on("change", (change) => {
-    console.log("📢 Submission updated:", change);
-    io.emit("submissionUpdate", change);
-  });
+    // Fetch all stored plagiarism results
+    const existingResults = await similarityCollection.find({}, { projection: { submissionID: 1 } }).toArray();
+    const checkedSubmissionIDs = new Set(existingResults.map((doc) => doc.submissionID));
 
-  const notificationCollection = db.collection("notifications");
-  const notificationStream = notificationCollection.watch();
+    // Fetch all submissions
+    const allSubmissions = await submissionCollection.find({}, { projection: { submissionID: 1 } }).toArray();
+    const newSubmissions = allSubmissions.filter(sub => !checkedSubmissionIDs.has(sub.submissionID));
 
-  notificationStream.on("change", (change) => {
-    if (change.operationType === "insert") {
-      const newNotification = change.fullDocument;
-      console.log("🔔 New Notification:", newNotification);
-      io.emit("newNotification", newNotification);
+    if (newSubmissions.length === 0) {
+      console.log("✅ No new files to process. Returning existing results...");
+      const storedResults = await similarityCollection.find().toArray();
+      return res.json({ results: storedResults });
     }
-  });
+
+    console.log(`🚀 Found ${newSubmissions.length} new files. Running similarity check...`);
+
+    // Run similarity.py for new submissions
+    const results = await runSimilarityCheck();
+
+    if (!results.results || results.results.length === 0) {
+      return res.status(500).json({ error: "⚠️ No new similarity results." });
+    }
+
+    // Store only new results in MongoDB
+    for (const result of results.results) {
+      await similarityCollection.updateOne(
+        { submissionID: result.submissionID },
+        { $set: result },
+        { upsert: true }
+      );
+    }
+
+    console.log("✅ New results saved to database.");
+    res.json(results.results);
+  } catch (error) {
+    console.error("❌ Server Error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Start server
+// ✅ API to Fetch Plagiarism Results (for Admin Dashboard)
+app.get("/api/plagiarism-results", async (req, res) => {
+  try {
+    const similarityCollection = mongoose.connection.collection("plagiarismresults");
+
+    // ✅ Fetch required fields including highlighted text
+    const results = await similarityCollection
+      .find({}, { projection: { _id: 0, submissionID: 1, "Student 1": 1, "Student 2": 1, "Similarity": 1, "Highlighted Text": 1 } })
+      .toArray();
+
+    console.log("📊 Fetched plagiarism results.");
+    io.emit("fetchedDocuments", "Fetched Documents"); // Send event to frontend
+    res.json({ results });
+  } catch (error) {
+    console.error("❌ Error fetching plagiarism results:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

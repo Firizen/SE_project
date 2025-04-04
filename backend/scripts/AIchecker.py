@@ -108,7 +108,7 @@ class GPT2PPL:
 
 if __name__ == "__main__":
     logging.getLogger("transformers").setLevel(logging.ERROR)
-    directory_path = "c:/Users/dvpry/Downloads/Content"
+    directory_path = "c:/Users/madhu/Downloads/Content"
     detector = GPT2PPL(device="cpu")  # Change to "cuda" if GPU is available
     results = detector.check_documents(directory_path)
 

@@ -7,7 +7,10 @@ const MONGO_URI = "mongodb+srv://cse22103:cb.en.u4@se.jdnaa.mongodb.net/studentP
 const DB_NAME = "studentPortal";
 const COLLECTION_NAME = "submissions";
 const RESULTS_COLLECTION = "plagiarism_results";
-const DOWNLOADS_DIR = path.join("C:", "Users", "dvpry", "Downloads", "Content");
+// const DOWNLOADS_DIR = path.join("C:", "Users", "madhu", "Downloads", "Content");
+
+=======
+const DOWNLOADS_DIR = path.join("C:", "Users", "dvpry", "Downloads", "Content"); //replace with server diretory 
 if (!fs.existsSync(DOWNLOADS_DIR)) {
     fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 }
