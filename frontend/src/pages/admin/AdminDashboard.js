@@ -105,40 +105,6 @@ function AdminDashboard() {
           {activeSection === "plagiarism" && <ViewPlagiarismResults />} //might need to remove this, based on conflict
           {activeSection === "manageUsers" && <ManageUsers />}
 
-          {/* Display Plagiarism Results in Table ONLY after running the check */}
-          {showResults && (
-            <div className="mt-5">
-              <h3 className="text-xl font-semibold mb-2">Stored Plagiarism Results</h3>
-              {similarityResults.length > 0 ? (
-                <table className="min-w-full bg-white border border-gray-300 shadow-lg">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="border px-4 py-2">Submission ID</th>
-                      <th className="border px-4 py-2">Student 1</th>
-                      <th className="border px-4 py-2">Student 2</th>  
-                      <th className="border px-4 py-2">Similarity (%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {similarityResults.map((result, index) => (
-                      <tr key={index} className="hover:bg-gray-100 transition">
-                        <td className="border px-4 py-2">{result.submissionID}</td>
-                        <td className="border px-4 py-2">{result["Student 1"]}</td>
-                        <td className="border px-4 py-2">{result["Student 2"]}</td>
-                        <td className="border px-4 py-2 font-bold text-red-600">
-                          {result["Similarity (%)"]}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-600">No similarities found.</p>
-              )}
-            </div>
-          )}
-
-
           {/* Default Home Page */}
           {activeSection === null && (
             <div className="flex content-start">

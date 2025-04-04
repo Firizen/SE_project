@@ -119,7 +119,7 @@ def check_similarity(threshold=30):
                         "submissionID": submission_id,
                         "Student 1": student1,
                         "Student 2": student2,
-                        "Similarity (%)": similarity_score,
+                        "Similarity": similarity_score,
                         "Highlighted Text": highlighted_text
                     })
 

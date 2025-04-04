@@ -14,20 +14,15 @@ const ViewPlagiarismResults = () => {
           <RegularPlagiarismCheck onBack={()=> setView(null)}/>
       ) : ( 
       <>
-        <h2 className="text-xl font-semibold mb-4">Check Assignments</h2>
-        <div className="flex space-x-4">
+       
+        <div className="flex space-x-4 mb-4">
           <button
             className="w-60 py-4 rounded bg-blue-500 text-white hover:bg-blue-600"
             onClick={() => setView("aiCheck")}
           >
             AI Content Check
           </button>
-          <button
-            className="w-60 py-4 rounded bg-green-500 text-white hover:bg-green-600"
-            onClick={() => setView("regularCheck")}
-          >
-            Regular Plagiarism Check
-          </button>
+         
         </div>
       </>
     )}       

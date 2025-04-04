@@ -17,8 +17,6 @@ import PlagiarismResultsPage from "./pages/teacher/dashboardComponents/Plagiaris
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const socket = io("http://localhost:5000");
 
